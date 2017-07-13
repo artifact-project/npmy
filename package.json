@@ -38,5 +38,13 @@
       "js",
       "json"
     ]
+  },
+  "dependencies": {
+    "@types/node": "^6.0.81",
+    "cli-spinner": "^0.2.6",
+    "debounce": "^1.0.2",
+    "glob": "^7.1.2",
+    "minimatch": "^3.0.4",
+    "node-watch": "^0.5.5"
   }
 }
