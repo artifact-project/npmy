@@ -1,8 +1,8 @@
 {
   "name": "nmpy",
   "version": "0.1.0",
-  "description": "nmpy — `npm link` on steroids.",
-  "author": "RubaXa <trash@rubaxa.org>",
+  "description": "`npm link` on steroids.",
+  "author": "RubaXa <ibnRubaXa@gmail.com>",
   "license": "MIT",
   "main": "index.js",
   "scripts": {
@@ -45,6 +45,7 @@
     "debounce": "^1.0.2",
     "glob": "^7.1.2",
     "minimatch": "^3.0.4",
-    "node-watch": "^0.5.5"
+    "node-watch": "^0.5.5",
+    "semver": "^5.3.0"
   }
 }
