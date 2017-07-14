@@ -11,8 +11,8 @@ npm install -g npmy
  0. `npm install -g npmy`
  1. `cd path/to/project`
  2. Add `.npmyrc` to `.gitignore`
- 3. `vi .npmyrc`
- 4. `{"%TARGET_DEPENDENCY%": "%LOCAL_PATH_TO_PACKAGE_FOLDER%"}`
+ 3. `touch .npmyrc`
+ 4. Edit `.npmyrc`, a`{"%TARGET_DEPENDENCY%": "%LOCAL_PATH_TO_PACKAGE_FOLDER%"}`
  5. `npmy`
  6. ...
  7. Profit!
@@ -24,7 +24,7 @@ npm install -g npmy
 так же есть пакеты находящиеся в разработке. Обычно эту задачу решаю через создание
 сим-линка или использованием `npm link`, но эти способы не работают, когда зависимый
 пакет имеет сложный цикл публикации (модифицирует свой исходный код, например
-использует транспилер) или этих больше чем один...
+использует транспилер) или их больше чем один...
 <br/>
 
 `npmy` решает все эти проблемы, поверьте мне!
