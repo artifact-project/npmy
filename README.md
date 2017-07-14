@@ -13,7 +13,7 @@ npm install -g npmy
  2. Add `.npmyrc` to `.gitignore`
  3. `vi .npmyrc`
  4. `{"%TARGET_DEPENDENCY%": "%LOCAL_PATH_TO_PACKAGE_FOLDER%"}`
- 5. `nmpy`
+ 5. `npmy`
  6. ...
  7. Profit!
 
@@ -27,7 +27,7 @@ npm install -g npmy
 использует транспилер) или этих больше чем один...
 <br/>
 
-`nmpy` решает все эти проблемы, поверьте мне!
+`npmy` решает все эти проблемы, поверьте мне!
 
 
 ### Todo

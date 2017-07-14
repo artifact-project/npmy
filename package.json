@@ -1,12 +1,12 @@
 {
-  "name": "nmpy",
-  "version": "0.1.0-rc",
+  "name": "npmy",
+  "version": "0.1.0-rc.6",
   "description": "`npm link` on steroids.",
   "author": "RubaXa <ibnRubaXa@gmail.com>",
   "license": "MIT",
   "main": "index.js",
   "bin": {
-    "nmpy": "index.js"
+    "npmy": "bin/npmy.js"
   },
   "scripts": {
     "test": "jest --coverage",
@@ -19,6 +19,7 @@
   "files": [
     "*.js",
     "*.d.ts",
+    "bin/*/*.js",
     "src/*/*.js",
     "src/*/*.d.ts"
   ],
@@ -47,6 +48,7 @@
     "debounce": "^1.0.2",
     "glob": "^7.1.2",
     "minimatch": "^3.0.4",
+    "minimist": "^1.2.0",
     "node-watch": "^0.5.5",
     "semver": "^5.3.0"
   }

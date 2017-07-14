@@ -5,9 +5,8 @@ import Manager from './src/Manager/Manager';
 import {createSpinner} from './src/utils/utils';
 
 const {
-	_:targetPaths,
+	_:targetPaths = [],
 } = minimist(process.argv.slice(2));
-const NMPy = {};
 
 console.log(`NPMy (ctrl+c -> exit)`);
 console.log(`tmp: ${tmpdir()}`);
@@ -17,6 +16,8 @@ console.log(`---------------------`);
 // Autorun
 (async function () {
 	const manager = new Manager();
+
+	!targetPaths.length && targetPaths.push('.');
 
 	for (const relativePath of targetPaths) {
 		const path = resolve(relativePath);

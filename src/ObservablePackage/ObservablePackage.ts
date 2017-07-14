@@ -11,8 +11,8 @@ export default class ObservablePackage extends Package {
 	private ghostPath: string;
 	private tasks: (() => Promise<any>)[] = [];
 
-	constructor(public path: string, public nmpy: INPMyrc) {
-		super(path, nmpy);
+	constructor(public path: string, public npmy: INPMyrc) {
+		super(path, npmy);
 
 		this.rsyncGhostPath = join(tmpdir(), this.name.replace(/[^a-z_0-9-]/gi, '_'));
 		this.ghostPath = join(this.rsyncGhostPath, basename(this.path));

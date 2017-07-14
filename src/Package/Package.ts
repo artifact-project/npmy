@@ -20,7 +20,7 @@ export default class Package {
 	json: PackageJSON;
 	installer;
 
-	constructor(public path: string, public nmpy: INPMyrc) {
+	constructor(public path: string, public npmy: INPMyrc) {
 		this.json = require(join(path, 'package.json'));
 	}
 
@@ -62,8 +62,8 @@ export default class Package {
 				...(this.json.devDependencies || {}),
 			})
 			.forEach(([name, version]) => {
-				if (this.nmpy[name]) {
-					symLinks.push(this.nmpy[name]);
+				if (this.npmy[name]) {
+					symLinks.push(this.npmy[name]);
 				} else {
 					toInstall.push({
 						name,
