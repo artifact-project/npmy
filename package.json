@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "`npm link` on steroids.",
   "author": "RubaXa <ibnRubaXa@gmail.com>",
+  "repository": "git@github.com:artifact-project/nmpy.git",
   "license": "MIT",
   "main": "index.js",
   "bin": {
