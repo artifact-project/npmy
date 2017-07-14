@@ -4,18 +4,10 @@ import * as minimist from 'minimist';
 import Manager from './src/Manager/Manager';
 import {createSpinner} from './src/utils/utils';
 
-
 const {
 	_:targetPaths,
 } = minimist(process.argv.slice(2));
 const NMPy = {};
-
-// process.stdin.resume();
-// process.on('SIGINT', () => process.exit());
-process.on('uncaughtException', (err) => {
-	console.error(err);
-	process.exit();
-});
 
 console.log(`NPMy (ctrl+c -> exit)`);
 console.log(`tmp: ${tmpdir()}`);

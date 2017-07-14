@@ -1,10 +1,13 @@
 {
   "name": "nmpy",
-  "version": "0.1.0",
+  "version": "0.1.0-rc",
   "description": "`npm link` on steroids.",
   "author": "RubaXa <ibnRubaXa@gmail.com>",
   "license": "MIT",
   "main": "index.js",
+  "bin": {
+    "nmpy": "index.js"
+  },
   "scripts": {
     "test": "jest --coverage",
     "ts-build": "tsc",
