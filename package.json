@@ -33,7 +33,6 @@
       "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
     "testRegex": "\\.tests\\.ts$",
-    "transformIgnorePatterns": [],
     "setupTestFrameworkScriptFile": "<rootDir>/__jest__/extensions.ts",
     "moduleFileExtensions": [
       "ts",
