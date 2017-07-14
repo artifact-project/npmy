@@ -1,9 +1,9 @@
 {
   "name": "npmy",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "`npm link` on steroids.",
   "author": "RubaXa <ibnRubaXa@gmail.com>",
-  "repository": "git@github.com:artifact-project/nmpy.git",
+  "repository": "git@github.com:artifact-project/npmy.git",
   "license": "MIT",
   "main": "index.js",
   "bin": {
