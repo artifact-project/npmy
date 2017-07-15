@@ -12,10 +12,18 @@ npm install -g npmy
  1. `cd path/to/project`
  2. Add `.npmyrc` to `.gitignore`
  3. `touch .npmyrc`
- 4. Edit `.npmyrc`, a`{"%TARGET_DEPENDENCY%": "%LOCAL_PATH_TO_PACKAGE_FOLDER%"}`
- 5. `npmy`
+ 4. Edit `.npmyrc` as JSON-file and write `{"%TARGET_DEPENDENCY%": "%LOCAL_PATH_TO_PACKAGE_FOLDER%"}`
+ 5. `npmy .`
  6. ...
  7. Profit!
+
+
+### API
+
+`npmy [path] --include=pattern`
+
+ - `path` — by default current folder
+ - `include` — see (glob)[https://github.com/isaacs/node-glob#glob-primer]
 
 
 ### Description of work

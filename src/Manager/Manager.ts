@@ -1,13 +1,12 @@
-import {resolve, dirname} from 'path';
-import {glob, readFile} from '../utils/utils';
-import Package, {INPMyrc} from '../Package/Package';
+import {join, resolve, dirname} from 'path';
+import {glob, readFile, existsSync} from '../utils/utils';
+import Package from '../Package/Package';
 import ObservablePackage from '../ObservablePackage/ObservablePackage';
+import {getPackageJSON} from '../PackageJSON/PackageJSON';
 
 export type RCScanResult = {
 	path: string;
-	name: string;
-	filename: string;
-	rc: INPMyrc;
+	rc: object;
 
 };
 
@@ -15,30 +14,39 @@ export default class Manager {
 	items: RCScanResult[] = [];
 	itemsIndex: {[path: string]: RCScanResult} = {};
 	observables: {[path: string]: boolean} = {};
+
 	packages: {[path: string]: Package} = {};
+	observablePackages: {[path: string]: ObservablePackage} = {};
 
-	getPackage(path): Package {
-		if (!this.packages[path]) {
-			const Class = this.observables[path] ? ObservablePackage : Package;
+	getPackage(path: string, notObservable: boolean = false): Package {
+		const isObservable = !notObservable && this.observables[path];
+		const collection = isObservable ? this.observablePackages : this.packages;
+
+		if (!collection[path]) {
+			const Class = isObservable ? ObservablePackage : Package;
 			const rc = this.itemsIndex[path] ? this.itemsIndex[path].rc : {};
-			const npmy = Object.entries(rc).reduce((list, [name, path]) => {
-				list[name] = this.getPackage(path);
-				return list;
-			}, {});
+			const {allDependencies} = getPackageJSON(path);
+			const npmy = Object
+				.entries(rc)
+				.filter(([name]) => allDependencies.hasOwnProperty(name))
+				.reduce((list, [name, path]) => {
+					list[name] = this.getPackage(path);
+					return list;
+				}, {});
 
-			this.packages[path] = new Class(path, npmy) as Package;
+			collection[path] = new Class(path, npmy) as Package;
 		}
 
-		return this.packages[path];
+		return collection[path];
 	}
 
 	async run() {
 		for (const {path} of this.items) {
-			await this.getPackage(path).install();
+			await this.getPackage(path, true).install();
 		}
 	}
 
-	async scan(cwd: string) {
+	async scan(cwd: string, include?: string) {
 		const files = await glob('**/.npmyrc', {
 			cwd,
 			dot: true,
@@ -59,20 +67,43 @@ export default class Manager {
 				this.observables[rc[name]] = true;
 			});
 
-			const data: RCScanResult = {
-				path,
-				name,
-				filename,
-				rc,
-			};
-
-			this.itemsIndex[data.path] = data;
-
-			return data;
+			return this.addItem(path, rc);
 		}));
 
-		this.items.push(...list);
+		if (include) {
+			const entries = await glob(include, {
+				cwd,
+				absolute: true,
+			});
+
+			entries
+				.filter(filename => existsSync(join(filename, 'package.json')))
+				.forEach(filename => {
+					const rc = Object
+						.entries(this.itemsIndex[cwd].rc)
+						.reduce((map, [name, path]) => {
+							(path !== filename) && (map[name] = path);
+							return map;
+						}, {})
+					;
+
+					list.push(this.addItem(filename, rc));
+				})
+			;
+		}
 
 		return list;
+	}
+
+	private addItem(path: string, rc: object): RCScanResult {
+		const data: RCScanResult = {
+			path,
+			rc,
+		};
+
+		this.itemsIndex[path] = data;
+		this.items.push(data);
+
+		return data;
 	}
 }

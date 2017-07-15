@@ -1,27 +1,18 @@
 import {join} from 'path';
 import {satisfies} from 'semver';
 import {exec, symlink, createSpinner, checkNodeModulesPath} from '../utils/utils';
+import {PackageJSON, getPackageJSON} from '../PackageJSON/PackageJSON';
 
 export interface INPMyrc {
 	[name: string]: Package;
 }
 
-export interface PackageJSON {
-	name: string;
-	version: string;
-	scripts: object;
-	dependencies: object;
-	devDependencies: object;
-	peerDependencies: object;
-	files: string[];
-}
-
 export default class Package {
 	json: PackageJSON;
-	installer;
+	private installer;
 
 	constructor(public path: string, public npmy: INPMyrc) {
-		this.json = require(join(path, 'package.json'));
+		this.json = getPackageJSON(path);
 	}
 
 	get name(): string {
@@ -57,10 +48,7 @@ export default class Package {
 		this.time('install');
 
 		Object
-			.entries({
-				...(this.json.dependencies || {}),
-				...(this.json.devDependencies || {}),
-			})
+			.entries(this.json.allDependencies)
 			.forEach(([name, version]) => {
 				if (this.npmy[name]) {
 					symLinks.push(this.npmy[name]);
@@ -125,10 +113,10 @@ export default class Package {
 	}
 
 	protected time(label) {
-		console.time(` [${this.name}] <time> ${label}`);
+		console.time(` [${this.name}] ${label}`);
 	}
 
 	protected timeEnd(label) {
-		console.timeEnd(` [${this.name}] <time> ${label}`);
+		console.timeEnd(` [${this.name}] ${label}`);
 	}
 }
