@@ -7,6 +7,8 @@ export interface INPMyrc {
 	[name: string]: Package;
 }
 
+let SPINNER;
+
 export default class Package {
 	json: PackageJSON;
 
@@ -46,25 +48,31 @@ export default class Package {
 	protected async runInstall() {
 		const symLinks: Package[] = [];
 		const toInstall: ({name: string, version: string})[] = [];
+		const existsDeps = {};
 
 		this.time('install');
 
-		Object
-			.entries(this.json.allDependencies)
-			.forEach(([name, version]) => {
-				if (this.npmy[name]) {
-					symLinks.push(this.npmy[name]);
+		(function collect(deps:{[name:string]: string} = {}, npmy) {
+			Object.entries(deps).forEach(([name, version]) => {
+				if (existsDeps[name]) return;
+				existsDeps[name] = true;
+
+				if (npmy[name]) {
+					const pkg = npmy[name];
+
+					symLinks.push(pkg);
+					collect.call(this, pkg.json.dependencies, pkg.npmy);
 				} else {
 					toInstall.push({
 						name,
-						version: <string>version,
+						version,
 					});
 				}
 			})
-		;
+		}).call(this, this.json.allDependencies, this.npmy);
 
 		if (toInstall.length) {
-			let spinner = createSpinner(` %s [${this.name}] Checking dependencies`, true);
+			SPINNER = createSpinner(` %s [${this.name}] Checking dependencies`, true);
 
 			const deps = toInstall
 				.filter(({name, version}) => {
@@ -78,17 +86,19 @@ export default class Package {
 				.map(({name, version}) => `${name}@"${version}"`)
 			;
 
-			spinner.stop(true);
+			SPINNER.stop(true);
 
 			if (deps.length) {
-				spinner = createSpinner(` %s [${this.name}] npm install ${deps.join(' ')}`, true);
+				this.log(`npm install ${deps.join(' ')}`);
+
+				SPINNER = createSpinner(` [${this.name}] Installing... %s`, true);
 
 				await exec(
 					`npm i ${deps.join(' ')}`,
 					{cwd: this.path},
 				);
 
-				spinner.stop(true);
+				SPINNER.stop(true);
 			}
 		}
 
@@ -111,7 +121,16 @@ export default class Package {
 	}
 
 	protected log(...args) {
+		let resumeSpinner = false;
+
+		if (SPINNER && SPINNER.isSpinning()) {
+			resumeSpinner = true;
+			SPINNER.stop(true);
+		}
+
 		console.log(` [${this.name}]`, ...args);
+
+		resumeSpinner && SPINNER.start();
 	}
 
 	protected time(label) {
