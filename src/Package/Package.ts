@@ -1,6 +1,6 @@
 import {join} from 'path';
 import {satisfies} from 'semver';
-import {exec, symlink, createSpinner, checkNodeModulesPath} from '../utils/utils';
+import {exec, symlink, createSpinner, checkNodeModulesPath, rmdir} from '../utils/utils';
 import {PackageJSON, getPackageJSON} from '../PackageJSON/PackageJSON';
 
 export interface INPMyrc {
@@ -9,7 +9,9 @@ export interface INPMyrc {
 
 export default class Package {
 	json: PackageJSON;
+
 	private installer;
+	private verboseTime: boolean = !!process.env.VERBOSE_TIME;
 
 	constructor(public path: string, public npmy: INPMyrc) {
 		this.json = getPackageJSON(path);
@@ -67,7 +69,7 @@ export default class Package {
 			const deps = toInstall
 				.filter(({name, version}) => {
 					try {
-						const pkg = require(join(this.path, 'node_modules', name, 'package.json'));
+						const pkg = getPackageJSON(join(this.path, 'node_modules', name));
 						return !satisfies(pkg.version, version);
 					} catch (err) {
 						return true;
@@ -91,14 +93,14 @@ export default class Package {
 		}
 
 		if (symLinks.length) {
-			await Promise.all(symLinks.map(async (pkg) => {
+			for (const pkg of symLinks) {
 				const path = join(this.path, 'node_modules', pkg.name);
 
-				await pkg.install();
 				await checkNodeModulesPath(path);
-				await exec(`rm -rf ${path}`);
+				await pkg.install();
+				await rmdir(`${path}`);
 				await symlink(pkg.getPathToPublished(), path);
-			}));
+			}
 		}
 
 		this.timeEnd('install');
@@ -113,10 +115,10 @@ export default class Package {
 	}
 
 	protected time(label) {
-		console.time(` [${this.name}] ${label}`);
+		this.verboseTime && console.time(` [${this.name}] ${label}`);
 	}
 
 	protected timeEnd(label) {
-		console.timeEnd(` [${this.name}] ${label}`);
+		this.verboseTime && console.timeEnd(` [${this.name}] ${label}`);
 	}
 }

@@ -3,6 +3,7 @@ import {glob, readFile, existsSync} from '../utils/utils';
 import Package from '../Package/Package';
 import ObservablePackage from '../ObservablePackage/ObservablePackage';
 import {getPackageJSON} from '../PackageJSON/PackageJSON';
+import {file} from 'babel-types';
 
 export type RCScanResult = {
 	path: string;
@@ -47,13 +48,15 @@ export default class Manager {
 	}
 
 	async scan(cwd: string, include?: string) {
-		const files = await glob('.npmyrc', {
+		const files = await glob('**/.npmyrc', {
 			cwd,
 			dot: true,
 		});
 		let rc = {};
 
 		const list = await Promise.all(files.map(async (name) => {
+			if (name.includes('node_modules')) return null;
+
 			const filename = resolve(cwd, name);
 			const path = dirname(filename);
 
@@ -104,10 +107,12 @@ export default class Manager {
 			);
 		}
 
-		return list;
+		return list.filter(item => !!item);
 	}
 
 	private addItem(path: string, rc: object): RCScanResult {
+		if (this.itemsIndex[path]) return null;
+
 		const data: RCScanResult = {
 			path,
 			rc,
