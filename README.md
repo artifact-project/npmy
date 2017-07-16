@@ -23,7 +23,7 @@ npm install -g npmy
 `npmy [path] --include=pattern`
 
  - `path` — by default current folder
- - `include` — see (glob)[https://github.com/isaacs/node-glob#glob-primer]
+ - `include` — see [glob](https://github.com/isaacs/node-glob#glob-primer)
 
 
 ### Description of work
