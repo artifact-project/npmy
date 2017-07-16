@@ -62,7 +62,7 @@ export default class Package {
 		;
 
 		if (toInstall.length) {
-			let spinner = createSpinner(` [${this.name}] Checking dependencies %s`, true);
+			let spinner = createSpinner(` %s [${this.name}] Checking dependencies`, true);
 
 			const deps = toInstall
 				.filter(({name, version}) => {
@@ -79,7 +79,7 @@ export default class Package {
 			spinner.stop(true);
 
 			if (deps.length) {
-				spinner = createSpinner(` [${this.name}] npm install ${deps.join(' ')} %s`, true);
+				spinner = createSpinner(` %s [${this.name}] npm install ${deps.join(' ')}`, true);
 
 				await exec(
 					`npm i ${deps.join(' ')}`,

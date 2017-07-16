@@ -83,7 +83,7 @@ export default class ObservablePackage extends Package {
 			await exec(`rsync -a ${this.path} ${this.rsyncGhostPath}`);
 		}
 
-		await writeFile(join(this.path, 'package.json'), JSON.stringify({
+		await writeFile(join(this.ghostPath, 'package.json'), JSON.stringify({
 			...this.json,
 			...{
 				scripts: {

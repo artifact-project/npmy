@@ -47,7 +47,7 @@ export default class Manager {
 	}
 
 	async scan(cwd: string, include?: string) {
-		const files = await glob('**/.npmyrc', {
+		const files = await glob('.npmyrc', {
 			cwd,
 			dot: true,
 		});
@@ -76,20 +76,32 @@ export default class Manager {
 				absolute: true,
 			});
 
-			entries
-				.filter(filename => existsSync(join(filename, 'package.json')))
-				.forEach(filename => {
-					const rc = Object
-						.entries(this.itemsIndex[cwd].rc)
-						.reduce((map, [name, path]) => {
-							(path !== filename) && (map[name] = path);
-							return map;
-						}, {})
-					;
+			await Promise.all(
+				entries
+					.filter(filename => existsSync(join(filename, 'package.json')))
+					.map(async filename => {
+						let rc = {
+							...this.itemsIndex[cwd].rc,
+						};
 
-					list.push(this.addItem(filename, rc));
-				})
-			;
+						try {
+							rc = {
+								...rc,
+								...JSON.parse(await readFile(join(filename, '.npmyrc')) + ''),
+							};
+						} catch (err) {}
+
+						Object
+							.entries(rc)
+							.forEach(([name, path]) => {
+								rc[name] = resolve(filename, path);
+								this.observables[rc[name]] = true;
+							})
+						;
+
+						list.push(this.addItem(filename, rc));
+					})
+			);
 		}
 
 		return list;
