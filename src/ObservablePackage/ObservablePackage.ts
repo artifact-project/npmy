@@ -23,7 +23,6 @@ export default class ObservablePackage extends Package {
 
 		rsync && this.addTask(() => this.rsyncGhost(true));
 		this.simulatePublish();
-		this.simulateInstall();
 		this.addTask(() => this.log(`Published`))
 	}
 
@@ -34,20 +33,12 @@ export default class ObservablePackage extends Package {
 
 	simulatePublish() {
 		this.addTask(() => this.time('simulatePublish'));
+		this.addTask(() => this.execHook('prepare'));
 		this.addTask(() => this.execHook('prepublishOnly'));
 		this.addTask(() => this.execHook('prepublish'));
 		this.addTask(() => this.execHook('publish'));
 		this.addTask(() => this.cleanGhostAfterPublish());
 		this.addTask(() => this.timeEnd('simulatePublish'));
-	}
-
-	simulateInstall() {
-		this.addTask(() => this.time('simulateInstall'));
-		this.addTask(() => this.execHook('prepublish'));
-		this.addTask(() => this.execHook('preinstall'));
-		this.addTask(() => this.execHook('install'));
-		this.addTask(() => this.execHook('postinstall'));
-		this.addTask(() => this.timeEnd('simulateInstall'));
 	}
 
 	protected getPathToPublished(): string {
@@ -78,9 +69,9 @@ export default class ObservablePackage extends Package {
 		this.time(`rsyncGhost(${excludeNodeModules})`);
 
 		if (excludeNodeModules) {
-			await exec(`rsync -a ${this.path} ${this.rsyncGhostPath} --exclude 'node_modules'`);
+			await exec(`rsync -a ${this.path} ${this.rsyncGhostPath} --exclude '.git' --exclude 'node_modules'`);
 		} else {
-			await exec(`rsync -a ${this.path} ${this.rsyncGhostPath}`);
+			await exec(`rsync -a ${this.path} ${this.rsyncGhostPath} --exclude '.git'`);
 		}
 
 		await writeFile(join(this.ghostPath, 'package.json'), JSON.stringify({
@@ -99,7 +90,7 @@ export default class ObservablePackage extends Package {
 	async cleanGhostAfterPublish() {
 		const {files:ignoreFilePatterns} = this.json;
 
-		if (ignoreFilePatterns.length) {
+		if (ignoreFilePatterns && ignoreFilePatterns.length) {
 			this.time('cleanGhostAfterPublish');
 			this.time('cleanGhostAfterPublish.glob');
 

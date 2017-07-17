@@ -1,6 +1,6 @@
 {
   "name": "npmy",
-  "version": "0.2.2",
+  "version": "0.3.0-rc.1",
   "description": "`npm link` on steroids.",
   "author": "RubaXa <ibnRubaXa@gmail.com>",
   "repository": "git@github.com:artifact-project/npmy.git",
@@ -12,10 +12,9 @@
   "scripts": {
     "test": "jest --coverage",
     "ts-build": "tsc",
-    "ts-clean": "git clean -f",
-    "prepublish-only": "npm run test && npm run ts-build",
-    "prepublish": "[ -f index.js ] || npm run prepublish-only",
-    "postpublish": "npm run ts-clean"
+    "git-clean": "git clean -f",
+    "prepublishOnly": "npm run test && npm run ts-build",
+    "postpublish": "npm run git-clean"
   },
   "files": [
     "*.js",
