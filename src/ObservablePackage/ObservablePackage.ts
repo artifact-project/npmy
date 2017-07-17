@@ -69,9 +69,9 @@ export default class ObservablePackage extends Package {
 		this.time(`rsyncGhost(${excludeNodeModules})`);
 
 		if (excludeNodeModules) {
-			await exec(`rsync -a ${this.path} ${this.rsyncGhostPath} --exclude '.git' --exclude 'node_modules'`);
+			await exec(`rsync -a ${this.path} ${this.rsyncGhostPath} --exclude '.git/' --exclude 'node_modules/'`);
 		} else {
-			await exec(`rsync -a ${this.path} ${this.rsyncGhostPath} --exclude '.git'`);
+			await exec(`rsync -a ${this.path} ${this.rsyncGhostPath} --exclude '.git/'`);
 		}
 
 		await writeFile(join(this.ghostPath, 'package.json'), JSON.stringify({
