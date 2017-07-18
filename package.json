@@ -1,6 +1,6 @@
 {
   "name": "npmy",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "`npm link` on steroids.",
   "author": "RubaXa <ibnRubaXa@gmail.com>",
   "repository": "git@github.com:artifact-project/npmy.git",

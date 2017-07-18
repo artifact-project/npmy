@@ -58,7 +58,7 @@ export default class ObservablePackage extends Package {
 
 		watch(this.path, {
 			recursive: true,
-			filter: (filename) => !/node_modules/.test(filename),
+			filter: (filename) => !/\/(node_modules|\.git)\//.test(filename),
 		}, debounce((eventName, filename) => {
 			this.log(`${eventName} -> ${filename}`);
 			this.expire(true);
