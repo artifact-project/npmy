@@ -4,6 +4,7 @@ const cache:{[path: string]: PackageJSON} = {};
 export interface PackageJSON {
 	name: string;
 	version: string;
+	bin: object;
 	scripts: object;
 	dependencies: object;
 	devDependencies: object;
@@ -14,14 +15,18 @@ export interface PackageJSON {
 
 export function getPackageJSON(path): PackageJSON {
 	if (!cache.hasOwnProperty(path)) {
-		const json: PackageJSON = require(join(path, 'package.json'));
+		try {
+			const json: PackageJSON = require(join(path, 'package.json'));
 
-		json.allDependencies = {
-			...(json.dependencies || {}),
-			...(json.devDependencies || {}),
-		};
+			json.allDependencies = {
+				...(json.dependencies || {}),
+				...(json.devDependencies || {}),
+			};
 
-		cache[path] = json;
+			cache[path] = json;
+		} catch (err) {
+			cache[path] = null;
+		}
 	}
 
 	return cache[path];

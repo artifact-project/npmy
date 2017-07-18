@@ -2,6 +2,7 @@ import {join} from 'path';
 import {satisfies} from 'semver';
 import {exec, symlink, createSpinner, checkNodeModulesPath, rmdir} from '../utils/utils';
 import {PackageJSON, getPackageJSON} from '../PackageJSON/PackageJSON';
+import {symlinkSync, unlinkSync} from 'fs';
 
 export interface INPMyrc {
 	[name: string]: Package;
@@ -40,12 +41,44 @@ export default class Package {
 		}
 	}
 
-	async install() {
-		this.installer = this.installer || this.runInstall();
+	async install(createBinScripts: boolean) {
+		this.installer = this.installer || this.runInstall(createBinScripts);
 		await this.installer;
 	}
 
-	protected async runInstall() {
+	private async createBinScripts(json: PackageJSON) {
+		const exists = {};
+		const binRoot = join(this.path, 'node_modules', '.bin');
+		const createBin = (pkgPath, bin = {}) => {
+			Object.entries(bin).forEach(([name, binFilename]) => {
+				const filename = join(binRoot, name);
+
+				unlinkSync(filename);
+				symlinkSync(join(pkgPath, binFilename as string), filename);
+			});
+		};
+		const scanNext = (deps = {}) => {
+			Object.keys(deps).forEach((name) => {
+				if (exists[name]) return;
+				exists[name] = true;
+
+				const pkgPath = join(this.path, 'node_modules', name);
+				const pkgJson = getPackageJSON(pkgPath);
+
+				if (pkgJson !== null) { // todo: Надо бы разобраться
+					createBin(pkgPath, pkgJson.bin);
+					scanNext(pkgJson.dependencies);
+				}
+			});
+		};
+
+		await checkNodeModulesPath(binRoot);
+
+		createBin(join(this.path, 'node_modules', json.name), json.bin);
+		scanNext(json.dependencies);
+	}
+
+	protected async runInstall(createBinScripts: boolean) {
 		const symLinks: Package[] = [];
 		const toInstall: ({name: string, version: string})[] = [];
 		const existsDeps = {};
@@ -107,9 +140,10 @@ export default class Package {
 				const path = join(this.path, 'node_modules', pkg.name);
 
 				await checkNodeModulesPath(path);
-				await pkg.install();
+				await pkg.install(false);
 				await rmdir(`${path}`);
 				await symlink(pkg.getPathToPublished(), path);
+				await this.createBinScripts(pkg.json);
 			}
 		}
 

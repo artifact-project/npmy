@@ -43,7 +43,7 @@ export default class Manager {
 
 	async run() {
 		for (const {path} of this.items) {
-			await this.getPackage(path, true).install();
+			await this.getPackage(path, true).install(true);
 		}
 	}
 

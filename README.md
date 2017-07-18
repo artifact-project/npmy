@@ -20,7 +20,7 @@ npm install -g npmy
 
 ### API
 
-`npmy [path] --include=pattern`
+`npmy [path] [--include=pattern]`
 
  - `path` — by default current folder
  - `include` — see [glob](https://github.com/isaacs/node-glob#glob-primer)
@@ -28,19 +28,13 @@ npm install -g npmy
 
 ### Description of work
 
-`npmy` — это инструмент для локальной разработки пакетов, в зависимостях которых
-так же есть пакеты находящиеся в разработке. Обычно эту задачу решаю через создание
-сим-линка или использованием `npm link`, но эти способы не работают, когда зависимый
-пакет имеет сложный цикл публикации (модифицирует свой исходный код, например
-использует транспилер) или их больше чем один...
-<br/>
+`npmy` — special tool for local packages development, subjecting to other packages being in development.
 
-`npmy` решает все эти проблемы, поверьте мне!
+Usually I solve this task via npm link, or just symlink. These methods don't work,
+when dependent package has difficult publish cycle (modifies it's source, e.g. using Babel/Rollup/etc)
+or there are more then one.
 
-
-### Todo
-
- - [ ] Revert after exit
+Trust me, `npmy` covers all above mentioned tasks.
 
 
 ### Development

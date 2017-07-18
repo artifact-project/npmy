@@ -4,6 +4,7 @@ import * as watch from 'node-watch';
 import * as debounce from 'debounce';
 import {exec, writeFile, glob, unlinkSync, rmdirSync} from '../utils/utils';
 import Package, {INPMyrc} from '../Package/Package';
+import {symlinkSync} from 'fs';
 
 export default class ObservablePackage extends Package {
 	private processing: boolean = false;
@@ -45,8 +46,8 @@ export default class ObservablePackage extends Package {
 		return this.ghostPath;
 	}
 
-	protected async runInstall() {
-		await super.runInstall();
+	protected async runInstall(createBinScripts: boolean) {
+		await super.runInstall(createBinScripts);
 		await this.rsyncGhost(false);
 
 		this.expire(false);
