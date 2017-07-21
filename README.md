@@ -1,6 +1,4 @@
-NPMy
-----
-`npm link` on steroids.
+![NPMy](https://habrastorage.org/web/90b/1de/e11/90b1dee119184345bf280b43c8172568.png)
 
 ```
 npm install -g npmy
