@@ -32,10 +32,13 @@ export default class Package {
 		if (this.hasHook(name)) {
 			this.time(`execHook(${name})`);
 
-			await exec(
-				`npm run ${name}`,
-				{cwd: this.getPathToPublished()},
-			);
+			try {
+				await exec(
+					`npm run ${name}`,
+					{cwd: this.getPathToPublished()},
+				);
+			} catch (err) {
+			}
 
 			this.timeEnd(`execHook(${name})`);
 		}
