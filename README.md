@@ -24,7 +24,7 @@ npm install -g npmy
  - `include` — see [glob](https://github.com/isaacs/node-glob#glob-primer)
 
 
-### Description of work
+### Description of work / [Read article](https://github.com/artifact-project/npmy/wiki/%60npm-link%60-on-steroids)
 
 `npmy` — special tool for local packages development, subjecting to other packages being in development.
 
