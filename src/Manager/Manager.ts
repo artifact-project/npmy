@@ -3,7 +3,6 @@ import {glob, readFile, existsSync} from '../utils/utils';
 import Package from '../Package/Package';
 import ObservablePackage from '../ObservablePackage/ObservablePackage';
 import {getPackageJSON} from '../PackageJSON/PackageJSON';
-import {file} from 'babel-types';
 
 export type RCScanResult = {
 	path: string;

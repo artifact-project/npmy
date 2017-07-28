@@ -1,16 +1,17 @@
 import {tmpdir} from 'os';
-import {join, basename} from 'path';
+import {join, basename, relative} from 'path';
 import * as watch from 'node-watch';
 import * as debounce from 'debounce';
-import {exec, writeFile, glob, unlinkSync, rmdirSync} from '../utils/utils';
+import * as minimatch from 'minimatch';
+import {exec, writeFile, glob, unlinkSync, rmdirSync, existsSync, readFile} from '../utils/utils';
 import Package, {INPMyrc} from '../Package/Package';
-import {symlinkSync} from 'fs';
 
 export default class ObservablePackage extends Package {
 	private processing: boolean = false;
 	private rsyncGhostPath: string;
 	private ghostPath: string;
 	private tasks: (() => Promise<any>)[] = [];
+	private gitignore: ((file: string) => boolean)[] = [];
 
 	constructor(public path: string, public npmy: INPMyrc) {
 		super(path, npmy);
@@ -49,9 +50,30 @@ export default class ObservablePackage extends Package {
 	protected async runInstall(createBinScripts: boolean) {
 		await super.runInstall(createBinScripts);
 		await this.rsyncGhost(false);
+		await this.readGitignore();
 
 		this.expire(false);
 		this.startWatcher();
+	}
+
+	private async readGitignore() {
+		const filename = join(this.path, '.gitignore');
+
+		if (existsSync(filename)) {
+			const content = await readFile(filename);
+
+			this.gitignore = String(content)
+				.split('\n')
+				.filter(line => line.trim() && line.charAt(0) !== '#')
+				.map(pattern => {
+					const mm = new minimatch.Minimatch(pattern, {
+						dot: true,
+					});
+
+					return (file) => file.includes(pattern) || mm.match(file);
+				})
+			;
+		}
 	}
 
 	private startWatcher() {
@@ -61,9 +83,14 @@ export default class ObservablePackage extends Package {
 			recursive: true,
 			filter: (filename) => !/\/(node_modules|\.git)\//.test(filename),
 		}, debounce((eventName, filename) => {
-			this.log(`${eventName} -> ${filename}`);
-			this.expire(true);
-		}, 1000));
+			const relativeFilename = relative(this.path, filename);
+			const ignored = this.gitignore.some(match => match(relativeFilename));
+
+			if (!ignored) {
+				this.log(`${eventName} -> ${filename}`);
+				this.expire(true);
+			}
+		}, 500));
 	}
 
 	private async rsyncGhost(excludeNodeModules: boolean) {

@@ -44,6 +44,7 @@
     ]
   },
   "dependencies": {
+    "@types/minimatch": "^2.0.29",
     "@types/node": "^6.0.81",
     "cli-spinner": "^0.2.6",
     "debounce": "^1.0.2",
