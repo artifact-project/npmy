@@ -21,8 +21,8 @@ npm install -g npmy
 `npmy [path] [--include=pattern]`
 
  - `path` — by default current folder
+ - `add` — add packages into `.npmyrc` (relative or absolute pattern)
  - `include` — see [glob](https://github.com/isaacs/node-glob#glob-primer)
-
 
 ### Description of work / [Read article](https://github.com/artifact-project/npmy/wiki/%60npm-link%60-on-steroids)
 
