@@ -72,7 +72,7 @@ console.log(`---------------------`);
 			Object.keys(rc)
 				.filter((depName) => allDependencies.hasOwnProperty(depName))
 				.forEach((depName) => {
-					console.log(`     [${depName}] -> ${rc[path]}`);
+					console.log(`     [${depName}] -> ${rc[depName]}`);
 				});
 		});
 	}
