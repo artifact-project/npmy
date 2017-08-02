@@ -52,14 +52,19 @@ export default class Package {
 	private async createBinScripts(json: PackageJSON) {
 		const exists = {};
 		const binRoot = join(this.path, 'node_modules', '.bin');
-		const createBin = (pkgPath, bin = {}) => {
-			const binCommands = Object.entries(bin);
+		const createBin = (name, pkgPath, bin = {}) => {
+			if (typeof bin === 'string') {
+				bin = {[name]: bin};
+			}
+
+			const binCommands = Object.keys(bin);
 
 			if (!binCommands.length) return;
 
-			this.log(`/.bin/: ${binCommands.map(([name, binFilename]) => `[${name} -> ${binFilename}]`).join(', ')}`);
+			this.log(`${name} /.bin/: ${binCommands.map((name) => `[${name} -> ${bin[name]}]`).join(', ')}`);
 
-			binCommands.forEach(([name, binFilename]) => {
+			binCommands.forEach((name) => {
+				const binFilename = bin[name];
 				const filename = join(binRoot, name);
 
 				try { unlinkSync(filename); } catch (err) {}
@@ -81,7 +86,7 @@ export default class Package {
 				const pkgJson = getPackageJSON(pkgPath);
 
 				if (pkgJson !== null) { // todo: Надо бы разобраться
-					createBin(pkgPath, pkgJson.bin);
+					createBin(pkgJson.name, pkgPath, pkgJson.bin);
 					scanNext(pkgJson.dependencies);
 				}
 			});
