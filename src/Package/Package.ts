@@ -53,11 +53,23 @@ export default class Package {
 		const exists = {};
 		const binRoot = join(this.path, 'node_modules', '.bin');
 		const createBin = (pkgPath, bin = {}) => {
-			Object.entries(bin).forEach(([name, binFilename]) => {
+			const binCommands = Object.entries(bin);
+
+			if (!binCommands.length) return;
+
+			this.log(`/.bin/: ${binCommands.map(([name, binFilename]) => `[${name} -> ${binFilename}]`).join(', ')}`);
+
+			binCommands.forEach(([name, binFilename]) => {
 				const filename = join(binRoot, name);
 
-				unlinkSync(filename);
-				symlinkSync(join(pkgPath, binFilename as string), filename);
+				try { unlinkSync(filename); } catch (err) {}
+
+				try {
+					symlinkSync(join(pkgPath, binFilename as string), filename);
+				} catch (err) {
+					this.log(`[failed] createBin: ${name} -> ${binFilename}`);
+					console.error(err);
+				}
 			});
 		};
 		const scanNext = (deps = {}) => {
