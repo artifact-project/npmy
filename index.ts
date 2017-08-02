@@ -69,10 +69,10 @@ console.log(`---------------------`);
 
 			console.log(`   /${relative(path, pkgPath)}`);
 
-			Object.entries(rc)
-				.filter(([depName]) => allDependencies.hasOwnProperty(depName))
-				.forEach(([depName, path]) => {
-					console.log(`     [${depName}] -> ${path}`);
+			Object.keys(rc)
+				.filter((depName) => allDependencies.hasOwnProperty(depName))
+				.forEach((depName) => {
+					console.log(`     [${depName}] -> ${rc[path]}`);
 				});
 		});
 	}

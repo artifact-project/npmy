@@ -106,8 +106,11 @@ export default class Package {
 		this.time('install');
 
 		(function collect(deps:{[name:string]: string} = {}, npmy) {
-			Object.entries(deps).forEach(([name, version]) => {
+			Object.keys(deps).forEach((name) => {
 				if (existsDeps[name]) return;
+
+				const version = deps[name];
+
 				existsDeps[name] = true;
 
 				if (npmy[name]) {
@@ -121,7 +124,7 @@ export default class Package {
 						version,
 					});
 				}
-			})
+			});
 		}).call(this, this.json.allDependencies, this.npmy);
 
 		if (toInstall.length) {
