@@ -40,7 +40,7 @@ export function createSpinner(text, autoStart: boolean = false) {
 	return spinner;
 }
 
-export async function checkNodeModulesPath(path) {
+export async function checkNodeModulesPath(path: string) {
 	if (!existsSync(path)) {
 		const [rootPath, relativePath] = path.split('node_modules');
 		const segments = relativePath.split(sep);
@@ -53,4 +53,8 @@ export async function checkNodeModulesPath(path) {
 			}
 		}
 	}
+}
+
+export async function pause(ms: number) {
+	return new Promise(resolve => setTimeout(resolve, ms));
 }

@@ -1,5 +1,5 @@
 import {join, resolve, dirname} from 'path';
-import {glob, readFile, existsSync} from '../utils/utils';
+import {glob, readFile, existsSync, pause} from '../utils/utils';
 import Package from '../Package/Package';
 import ObservablePackage from '../ObservablePackage/ObservablePackage';
 import {getPackageJSON} from '../PackageJSON/PackageJSON';
@@ -43,7 +43,12 @@ export default class Manager {
 	async run() {
 		for (const {path} of this.items) {
 			await this.getPackage(path, true).install(true);
+			await pause(1000);
 		}
+
+		console.log('--------------------------------------');
+		console.log('\x1b[32m NPMy is ready, can start development \x1b[0m');
+		console.log('--------------------------------------');
 	}
 
 	async scan(cwd: string, include?: string) {

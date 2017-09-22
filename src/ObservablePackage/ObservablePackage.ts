@@ -3,11 +3,13 @@ import {join, basename, relative} from 'path';
 import * as watch from 'node-watch';
 import * as debounce from 'debounce';
 import * as minimatch from 'minimatch';
-import {exec, writeFile, glob, unlinkSync, rmdirSync, existsSync, readFile} from '../utils/utils';
+import {exec, writeFile, glob, unlinkSync, rmdirSync, existsSync, readFile, pause} from '../utils/utils';
 import Package, {INPMyrc} from '../Package/Package';
 
 export default class ObservablePackage extends Package {
 	private processing: boolean = false;
+	private taskRetries: number = 0;
+
 	private rsyncGhostPath: string;
 	private ghostPath: string;
 	private tasks: (() => Promise<any>)[] = [];
@@ -160,12 +162,28 @@ export default class ObservablePackage extends Package {
 			this.processing = true;
 
 			const task = this.tasks.shift();
+			let hasError = false;
 
 			try {
-				await task()
+				await task();
 			} catch (err) {
-				console.log(err);
+				hasError = true;
+
+				this.taskRetries++;
+				this.log('Task running failed:', this.taskRetries, '(pause 500ms)');
+
+				await pause(500);
+
+				if (this.taskRetries > 3) {
+					this.tasks.unshift(task);
+				} else {
+					throw err;
+				}
 			} finally {
+				if (!hasError) {
+					this.taskRetries = 0;
+				}
+
 				this.processing = false;
 				this.runNextTask();
 			}
