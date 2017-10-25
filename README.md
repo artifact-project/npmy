@@ -24,7 +24,7 @@ npm install -g npmy
  - `add` — add packages into `.npmyrc` (relative or absolute pattern)
  - `include` — see [glob](https://github.com/isaacs/node-glob#glob-primer)
 
-### Description of work / [Read article](https://github.com/artifact-project/npmy/wiki/%60npm-link%60-on-steroids)
+### Description of work / [Read article](https://github.com/artifact-project/npmy/wiki/%60npm-link%60-on-steroids) | [Ru](https://habrahabr.ru/company/mailru/blog/333580/)
 
 `npmy` — special tool for local packages development, subjecting to other packages being in development.
 
