@@ -14,10 +14,17 @@ export default class Package {
 	json: PackageJSON;
 
 	private installer;
-	private verboseTime: boolean = !!process.env.VERBOSE_TIME;
+	private verboseTime: boolean;
 
 	constructor(public path: string, public npmy: INPMyrc) {
 		this.json = getPackageJSON(path);
+		this.verboseTime = !!process.env.VERBOSE_TIME;
+
+		if (!this.name) {
+			console.error(`\x1b[31m ${path}`);
+			console.error(this.json, ' \x1b[0m');
+			throw new Error('Invalid package');
+		}
 	}
 
 	get name(): string {
@@ -105,7 +112,7 @@ export default class Package {
 
 		this.time('install');
 
-		(function collect(deps:{[name:string]: string} = {}, npmy) {
+		(function collect(deps:{[name:string]: string} = {}, npmy: INPMyrc) {
 			Object.keys(deps).forEach((name) => {
 				if (existsDeps[name]) return;
 
@@ -116,9 +123,12 @@ export default class Package {
 				if (npmy[name]) {
 					const pkg = npmy[name];
 
+					this.verbose(`\x1b[34m(local) ${name} --> ${pkg.path}`);
 					symLinks.push(pkg);
 					collect.call(this, pkg.json.dependencies, pkg.npmy);
 				} else {
+					this.verbose(`\x1b[35m(npm)   ${name}@${version}`);
+
 					toInstall.push({
 						name,
 						version,
@@ -188,6 +198,21 @@ export default class Package {
 		console.log(` [${this.name}]`, ...args);
 
 		resumeSpinner && SPINNER.start();
+	}
+
+	private verbose(...args) {
+		if (process.env.VERBOSE) {
+			let resumeSpinner = false;
+
+			if (SPINNER && SPINNER.isSpinning()) {
+				resumeSpinner = true;
+				SPINNER.stop(true);
+			}
+
+			console.log(`\x1b[33m -> [${this.name}]`, ...args, '\x1b[0m');
+
+			resumeSpinner && SPINNER.start();
+		}
 	}
 
 	protected time(label) {

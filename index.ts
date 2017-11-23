@@ -9,12 +9,20 @@ const {
 	_:targetPaths = [],
 	include,
 	add,
+	verbose,
 } = minimist(process.argv.slice(2));
 
 console.log(`NPMy (ctrl+c -> exit)`);
 console.log(` - tmp: ${tmpdir()}`);
+
 add && console.log(` - add: ${add}`);
 include && console.log(` - include: ${include}`);
+
+if (verbose) {
+	console.log(` - verbose: enabled`);
+	process.env.VERBOSE = true;
+}
+
 console.log(`---------------------`);
 
 

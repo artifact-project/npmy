@@ -18,19 +18,22 @@ export default class Manager {
 	packages: {[path: string]: Package} = {};
 	observablePackages: {[path: string]: ObservablePackage} = {};
 
-	getPackage(path: string, notObservable: boolean = false): Package {
+	private preparePackage(path: string, notObservable: boolean, initialRC): Package {
 		const isObservable = !notObservable && this.observables[path];
 		const collection = isObservable ? this.observablePackages : this.packages;
 
 		if (!collection[path]) {
 			const Class = isObservable ? ObservablePackage : Package;
-			const rc = this.itemsIndex[path] ? this.itemsIndex[path].rc : {};
+			const rc = {
+				...initialRC,
+				...(this.itemsIndex[path] ? this.itemsIndex[path].rc : {})
+			};
 			const {allDependencies} = getPackageJSON(path);
 			const npmy = Object
 				.entries(rc)
 				.filter(([name]) => allDependencies.hasOwnProperty(name))
 				.reduce((list, [name, path]) => {
-					list[name] = this.getPackage(path);
+					list[name] = this.preparePackage(path, false, rc);
 					return list;
 				}, {});
 
@@ -42,7 +45,7 @@ export default class Manager {
 
 	async run() {
 		for (const {path} of this.items) {
-			await this.getPackage(path, true).install(true);
+			await this.preparePackage(path, true, {}).install(true);
 			await pause(1000);
 		}
 
@@ -126,5 +129,11 @@ export default class Manager {
 		this.items.push(data);
 
 		return data;
+	}
+
+	private verbose(msg) {
+		if (process.env.VERBOSE) {
+			console.log(`\x1b[33m -> ${msg}\x1b[0m`);
+		}
 	}
 }
