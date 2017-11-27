@@ -68,7 +68,7 @@ export default class Package {
 
 			if (!binCommands.length) return;
 
-			this.log(`${name} /.bin/: ${binCommands.map((name) => `[${name} -> ${bin[name]}]`).join(', ')}`);
+			this.verbose(`(bin) ${name} ${binCommands.map((name) => `[${name} -> ${bin[name]}]`).join(', ')}`);
 
 			binCommands.forEach((name) => {
 				const binFilename = bin[name];
