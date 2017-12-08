@@ -94,7 +94,7 @@ export default class Package {
 
 				if (pkgJson !== null) { // todo: Надо бы разобраться
 					createBin(pkgJson.name, pkgPath, pkgJson.bin);
-					scanNext(pkgJson.dependencies);
+					scanNext(pkgJson.allDependencies);
 				}
 			});
 		};
@@ -102,7 +102,7 @@ export default class Package {
 		await checkNodeModulesPath(binRoot);
 
 		createBin(join(this.path, 'node_modules', json.name), json.bin);
-		scanNext(json.dependencies);
+		scanNext(json.allDependencies);
 	}
 
 	protected async runInstall(createBinScripts: boolean) {
@@ -110,6 +110,7 @@ export default class Package {
 		const toInstall: ({name: string, version: string})[] = [];
 		const existsDeps = {};
 
+		this.verbose(`Run install (${createBinScripts})`);
 		this.time('install');
 
 		(function collect(deps:{[name:string]: string} = {}, npmy: INPMyrc) {
