@@ -23,7 +23,8 @@ npm install -g npmy
  - `path` — by default current folder
  - `add` — add packages into `.npmyrc` (relative or absolute pattern)
  - `include` — see [glob](https://github.com/isaacs/node-glob#glob-primer)
- - `verbose` — process detailing of installation and linking.
+ - `version` — print current version
+ - `verbose` — process detailing of installation and linking
 
 ### Description of work / [Read article](https://github.com/artifact-project/npmy/wiki/%60npm-link%60-on-steroids) <sup><a href="https://habrahabr.ru/company/mailru/blog/333580/">Ru</a></sup>
 

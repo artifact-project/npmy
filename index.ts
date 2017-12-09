@@ -10,7 +10,13 @@ const {
 	include,
 	add,
 	verbose,
+	version
 } = minimist(process.argv.slice(2));
+
+if (version) {
+	console.log(`NPMy v${require('./package.json').version}`);
+	process.exit(0);
+}
 
 console.log(`NPMy (ctrl+c -> exit)`);
 console.log(` - tmp: ${tmpdir()}`);
