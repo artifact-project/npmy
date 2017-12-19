@@ -19,6 +19,8 @@ export default class Manager {
 	observablePackages: {[path: string]: ObservablePackage} = {};
 
 	private preparePackage(path: string, notObservable: boolean, initialRC): Package {
+		this.verbose(`prepare package: ${path} [${notObservable}]`);
+
 		const isObservable = !notObservable && this.observables[path];
 		const collection = isObservable ? this.observablePackages : this.packages;
 
@@ -28,7 +30,13 @@ export default class Manager {
 				...initialRC,
 				...(this.itemsIndex[path] ? this.itemsIndex[path].rc : {})
 			};
-			const {allDependencies} = getPackageJSON(path);
+			const pkgJson = getPackageJSON(path);
+
+			if (!pkgJson) {
+				this.verbose(`Bad package.json in ${path}`);
+			}
+
+			const {allDependencies} = pkgJson;
 			const npmy = Object
 				.entries(rc)
 				.filter(([name]) => allDependencies.hasOwnProperty(name))

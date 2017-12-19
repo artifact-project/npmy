@@ -13,6 +13,11 @@ const {
 	version
 } = minimist(process.argv.slice(2));
 
+process.on('unhandledRejection', (reason, p) => {
+	console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+	process.exit(1);
+});
+
 if (version) {
 	console.log(`NPMy v${require('./package.json').version}`);
 	process.exit(0);
