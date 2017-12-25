@@ -21,6 +21,7 @@ export function getPackageJSON(path): PackageJSON {
 			json.allDependencies = {
 				...(json.dependencies || {}),
 				...(json.devDependencies || {}),
+				...(json.peerDependencies || {}),
 			};
 
 			cache[path] = json;

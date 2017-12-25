@@ -1,8 +1,9 @@
 import {join} from 'path';
-import {satisfies} from 'semver';
+import {satisfies, gt, clean} from 'semver';
 import {exec, symlink, createSpinner, checkNodeModulesPath, rmdir} from '../utils/utils';
 import {PackageJSON, getPackageJSON} from '../PackageJSON/PackageJSON';
 import {symlinkSync, unlinkSync} from 'fs';
+import {version} from 'punycode';
 
 export interface INPMyrc {
 	[name: string]: Package;
@@ -115,11 +116,18 @@ export default class Package {
 
 		(function collect(deps:{[name:string]: string} = {}, npmy: INPMyrc) {
 			Object.keys(deps).forEach((name) => {
-				if (existsDeps[name]) return;
-
 				const version = deps[name];
+				const cleanVersion = version.replace(/[^\d\.]/, '');
 
-				existsDeps[name] = true;
+				if (existsDeps[name]) {
+					if (existsDeps[name] === cleanVersion || !gt(cleanVersion, existsDeps[name])) {
+						return;
+					}
+
+					this.verbose(`(info)  ${name} "${existsDeps[name]}" -> "${cleanVersion}" (${version})`);
+				}
+
+				existsDeps[name] = cleanVersion;
 
 				if (npmy[name]) {
 					const pkg = npmy[name];
@@ -147,6 +155,7 @@ export default class Package {
 						const pkg = getPackageJSON(join(this.path, 'node_modules', name));
 						return !satisfies(pkg.version, version);
 					} catch (err) {
+						// this.verbose(`\x1b[31m(err) ${name}@${version}`, err);
 						return true;
 					}
 				})

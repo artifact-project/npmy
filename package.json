@@ -1,6 +1,6 @@
 {
   "name": "npmy",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "`npm link` on steroids.",
   "author": "RubaXa <ibnRubaXa@gmail.com>",
   "repository": "git@github.com:artifact-project/npmy.git",
@@ -29,7 +29,7 @@
     "jest": "^20.0.3",
     "ts-jest": "^20.0.4",
     "ts-node": "^3.3.0",
-    "typescript": "^2.6.1"
+    "typescript": "2.6.2"
   },
   "jest": {
     "transform": {
