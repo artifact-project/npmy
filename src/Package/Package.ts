@@ -1,9 +1,8 @@
 import {join} from 'path';
-import {satisfies, gt, clean} from 'semver';
+import {satisfies, gt} from 'semver';
 import {exec, symlink, createSpinner, checkNodeModulesPath, rmdir} from '../utils/utils';
 import {PackageJSON, getPackageJSON} from '../PackageJSON/PackageJSON';
-import {symlinkSync, unlinkSync} from 'fs';
-import {version} from 'punycode';
+import {symlinkSync, unlinkSync, chmodSync} from 'fs';
 
 export interface INPMyrc {
 	[name: string]: Package;
@@ -46,6 +45,8 @@ export default class Package {
 					{cwd: this.getPathToPublished()},
 				);
 			} catch (err) {
+				this.verbose(`\x1b[31m(error) hook "${name}" failed`);
+				// console.error(err);
 			}
 
 			this.timeEnd(`execHook(${name})`);
@@ -67,6 +68,7 @@ export default class Package {
 
 			const binCommands = Object.keys(bin);
 
+			// Exit
 			if (!binCommands.length) return;
 
 			this.verbose(`(bin) ${name} ${binCommands.map((name) => `[${name} -> ${bin[name]}]`).join(', ')}`);
@@ -79,6 +81,7 @@ export default class Package {
 
 				try {
 					symlinkSync(join(pkgPath, binFilename as string), filename);
+					chmodSync(filename, '755');
 				} catch (err) {
 					this.log(`[failed] createBin: ${name} -> ${binFilename}`);
 					console.error(err);
@@ -210,7 +213,7 @@ export default class Package {
 		resumeSpinner && SPINNER.start();
 	}
 
-	private verbose(...args) {
+	protected verbose(...args) {
 		if (process.env.VERBOSE) {
 			let resumeSpinner = false;
 

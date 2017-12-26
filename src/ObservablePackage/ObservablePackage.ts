@@ -139,9 +139,11 @@ export default class ObservablePackage extends Package {
 			this.time('cleanGhostAfterPublish.unlink');
 
 			toRemoveFiles.reverse().forEach(filename => {
-				if (filename === 'package.json') return;
+				if (/(^\.|\.json$)/.test(filename)) return;
 
 				const fullFilename = join(this.ghostPath, filename);
+
+				// this.verbose(`(remove) ${fullFilename}`);
 
 				try {
 					unlinkSync(fullFilename);
