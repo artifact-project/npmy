@@ -18,6 +18,7 @@ export function getPackageJSON(path): PackageJSON {
 		try {
 			const json: PackageJSON = require(join(path, 'package.json'));
 
+			json.scripts = json.scripts || {};
 			json.allDependencies = {
 				...(json.dependencies || {}),
 				...(json.devDependencies || {}),
