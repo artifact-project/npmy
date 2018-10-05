@@ -19,7 +19,7 @@ export default class Manager {
 	observablePackages: {[path: string]: ObservablePackage} = {};
 
 	private preparePackage(path: string, notObservable: boolean, initialRC): Package {
-		this.verbose(`prepare package: ${path} [${notObservable}]`);
+		this.verbose(`prepare package: ${path} [observable: ${!notObservable}]`);
 
 		const isObservable = !notObservable && this.observables[path];
 		const collection = isObservable ? this.observablePackages : this.packages;
@@ -41,7 +41,7 @@ export default class Manager {
 				.entries(rc)
 				.filter(([name]) => allDependencies.hasOwnProperty(name))
 				.reduce((list, [name, path]) => {
-					list[name] = this.preparePackage(path, false, rc);
+					list[name] = this.preparePackage(path as string, false, rc);
 					return list;
 				}, {});
 

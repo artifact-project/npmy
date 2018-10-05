@@ -158,7 +158,7 @@ export default class Package {
 						const pkg = getPackageJSON(join(this.path, 'node_modules', name));
 						return !satisfies(pkg.version, version);
 					} catch (err) {
-						// this.verbose(`\x1b[31m(err) ${name}@${version}`, err);
+						this.verbose(`\x1b[31m(err) ${name}@${version}`, err);
 						return true;
 					}
 				})
@@ -187,7 +187,7 @@ export default class Package {
 
 				await checkNodeModulesPath(path);
 				await pkg.install(false);
-				await rmdir(`${path}`);
+				await rmdir(path);
 				await symlink(pkg.getPathToPublished(), path);
 				await this.createBinScripts(pkg.json);
 			}

@@ -2,7 +2,7 @@ import {tmpdir} from 'os';
 import {join, resolve, relative} from 'path';
 import * as minimist from 'minimist';
 import Manager from './src/Manager/Manager';
-import {createSpinner, glob, existsSync, writeFileSync, readFileSync} from './src/utils/utils';
+import {createSpinner, glob, existsSync, writeFileSync, readFileSync, rmdir} from './src/utils/utils';
 import {getPackageJSON} from './src/PackageJSON/PackageJSON';
 
 const {
@@ -13,8 +13,19 @@ const {
 	version
 } = minimist(process.argv.slice(2));
 
-process.on('unhandledRejection', (reason, p) => {
-	console.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+process.on('SIGINT', async () => {
+	console.log(` - Remove tmp: ${tmpdir()}`);
+	await rmdir(tmpdir());
+	process.exit();
+});
+
+process.on('unhandledRejection', async(reason, p) => {
+	console.log(` - Remove tmp: ${tmpdir()}`);
+	await rmdir(tmpdir());
+
+	console.log('\x1b[31m----------------------------');
+	console.error('Unhandled Rejection at: - \nPromise', p, '\n - reason:', reason);
+	console.log('----------------------------\x1b[0m');
 	process.exit(1);
 });
 
