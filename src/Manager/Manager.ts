@@ -70,7 +70,9 @@ export default class Manager {
 		let rc = {};
 
 		const list = await Promise.all(files.map(async (name) => {
-			if (name.includes('node_modules')) return null;
+			if (name.includes('node_modules')) {
+				return null;
+			}
 
 			const filename = resolve(cwd, name);
 			const path = dirname(filename);

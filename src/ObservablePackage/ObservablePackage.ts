@@ -1,9 +1,8 @@
-import {tmpdir} from 'os';
 import {join, basename, relative} from 'path';
 import * as watch from 'node-watch';
 import * as debounce from 'debounce';
 import * as minimatch from 'minimatch';
-import {exec, writeFile, glob, unlinkSync, rmdirSync, existsSync, readFile, pause} from '../utils/utils';
+import {exec, writeFile, glob, unlinkSync, rmdirSync, existsSync, readFile, pause, tmpdir, readDir, readDirSync} from '../utils/utils';
 import Package, {INPMyrc} from '../Package/Package';
 
 export default class ObservablePackage extends Package {
@@ -132,24 +131,29 @@ export default class ObservablePackage extends Package {
 				...await glob('!(node_modules)/**/*', {
 					cwd: this.ghostPath,
 					ignore: [...ignoreFilePatterns],
-				})
+				}),
 			];
+			this.verbose(`(ignore) ${ignoreFilePatterns.join(', ')}`);
 
 			this.timeEnd('cleanGhostAfterPublish.glob');
 			this.time('cleanGhostAfterPublish.unlink');
 
 			toRemoveFiles.reverse().forEach(filename => {
-				if (/(^\.|\.json$)/.test(filename)) return;
+				if (/(^\.|\.json$)/.test(filename)) {
+					return;
+				}
 
 				const fullFilename = join(this.ghostPath, filename);
 
-				// this.verbose(`(remove) ${fullFilename}`);
-
 				try {
 					unlinkSync(fullFilename);
+					// this.verbose(`(remove) ${filename}`);
 				} catch (err) {
 					try {
-						rmdirSync(fullFilename);
+						if (!readDirSync(fullFilename).length) {
+							rmdirSync(fullFilename);
+							// this.verbose(`(remove) ${filename}`);
+						}
 					} catch (err) {}
 				}
 			});

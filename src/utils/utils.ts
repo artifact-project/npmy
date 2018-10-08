@@ -4,19 +4,30 @@ import * as globModule from 'glob';
 import * as rimraf from 'rimraf';
 import * as childProcess from 'child_process';
 import {Spinner} from 'cli-spinner';
+import {tmpdir as ostmpdir} from 'os';
+
 
 export const exec = promisify<null>(childProcess.exec);
 export const glob = promisify<string[]>(globModule);
 export const mkdir = promisify<null>(fs.mkdir);
+export const mkdirSync = fs.mkdirSync;
 export const symlink = promisify<null>(fs.symlink);
 export const existsSync = fs.existsSync;
 export const rmdir = promisify<null>(rimraf);
+export const rmdirSync = (dir) => rimraf.sync(dir);
 export const readFile = promisify<Buffer>(fs.readFile);
 export const readFileSync = fs.readFileSync;
 export const writeFileSync = fs.writeFileSync;
-export const rmdirSync = fs.rmdirSync;
 export const unlinkSync = fs.unlinkSync;
 export const writeFile = promisify<null>(fs.writeFile);
+export const readDir = promisify<string[]>(fs.readdir);
+export const readDirSync = fs.readdirSync;
+
+const pathId = process.cwd().replace(/[^a-z0-9_-]/ig, '_');
+
+export function tmpdir() {
+	return `${ostmpdir()}/${pathId}`;
+}
 
 export function promisify<T>(fn, context = null): (...args) => Promise<T> {
 	return async function promisifyWrapper(...args): Promise<T> {

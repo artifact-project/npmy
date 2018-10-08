@@ -13,10 +13,14 @@ export interface PackageJSON {
 	files: string[];
 }
 
+export function getPackageJSONFileName(path) {
+	return join(path, 'package.json')
+}
+
 export function getPackageJSON(path): PackageJSON {
 	if (!cache.hasOwnProperty(path)) {
 		try {
-			const json: PackageJSON = require(join(path, 'package.json'));
+			const json: PackageJSON = require(getPackageJSONFileName(path));
 
 			json.scripts = json.scripts || {};
 			json.allDependencies = {

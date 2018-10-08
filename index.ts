@@ -1,8 +1,7 @@
-import {tmpdir} from 'os';
 import {join, resolve, relative} from 'path';
 import * as minimist from 'minimist';
 import Manager from './src/Manager/Manager';
-import {createSpinner, glob, existsSync, writeFileSync, readFileSync, rmdir} from './src/utils/utils';
+import {createSpinner, glob, existsSync, writeFileSync, readFileSync, mkdirSync, rmdirSync, tmpdir} from './src/utils/utils';
 import {getPackageJSON} from './src/PackageJSON/PackageJSON';
 
 const {
@@ -13,18 +12,10 @@ const {
 	version
 } = minimist(process.argv.slice(2));
 
-process.on('SIGINT', async () => {
-	console.log(` - Remove tmp: ${tmpdir()}`);
-	await rmdir(tmpdir());
-	process.exit();
-});
-
-process.on('unhandledRejection', async(reason, p) => {
-	console.log(` - Remove tmp: ${tmpdir()}`);
-	await rmdir(tmpdir());
-
+process.on('unhandledRejection', (reason, p) => {
 	console.log('\x1b[31m----------------------------');
-	console.error('Unhandled Rejection at: - \nPromise', p, '\n - reason:', reason);
+	console.error('Unhandled Rejection at promise:', p);
+	console.error('Reason:', reason);
 	console.log('----------------------------\x1b[0m');
 	process.exit(1);
 });
@@ -34,8 +25,11 @@ if (version) {
 	process.exit(0);
 }
 
-console.log(`NPMy (ctrl+c -> exit)`);
+console.log(`\x1b[32mNPMy\x1b[0m (ctrl+c -> exit)`);
 console.log(` - tmp: ${tmpdir()}`);
+
+// rmdirSync(tmpdir());
+mkdirSync(tmpdir());
 
 add && console.log(` - add: ${add}`);
 include && console.log(` - include: ${include}`);
@@ -46,7 +40,6 @@ if (verbose) {
 }
 
 console.log(`---------------------`);
-
 
 // Autorun
 (async function () {

@@ -11,9 +11,10 @@
   },
   "scripts": {
     "test": "jest --coverage",
+    "start": "ts-node index.ts",
     "ts-build": "tsc",
     "git-clean": "git clean -f",
-    "prepublish": "npm run test && npm run ts-build",
+    "prepublishOnly": "npm run test && npm run ts-build",
     "postpublish": "npm run git-clean"
   },
   "files": [

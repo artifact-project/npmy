@@ -45,7 +45,7 @@ export default class Package {
 					{cwd: this.getPathToPublished()},
 				);
 			} catch (err) {
-				this.verbose(`\x1b[31m(error) hook "${name}" failed`);
+				this.verboseError(`hook "${name}" failed:`, err);
 				// console.error(err);
 			}
 
@@ -123,8 +123,15 @@ export default class Package {
 				const cleanVersion = version.replace(/[^\d\.]/, '');
 
 				if (existsDeps[name]) {
-					if (existsDeps[name] === cleanVersion || !gt(cleanVersion, existsDeps[name])) {
-						return;
+					try {
+						if (existsDeps[name] === cleanVersion || !gt(cleanVersion, existsDeps[name])) {
+							return;
+						}
+					} catch (err) {
+						this.verboseError(
+							`${name} "${existsDeps[name]}" -> "${cleanVersion}" (${version})`,
+							err,
+						);
 					}
 
 					this.verbose(`(info)  ${name} "${existsDeps[name]}" -> "${cleanVersion}" (${version})`);
@@ -149,6 +156,20 @@ export default class Package {
 			});
 		}).call(this, this.json.allDependencies, this.npmy);
 
+		// Create sym-links
+		if (symLinks.length) {
+			for (const pkg of symLinks) {
+				const path = join(this.path, 'node_modules', pkg.name);
+
+				await checkNodeModulesPath(path);
+				await pkg.install(false);
+				await rmdir(path);
+				await symlink(pkg.getPathToPublished(), path);
+				await this.createBinScripts(pkg.json);
+			}
+		}
+
+		// install npm-packages
 		if (toInstall.length) {
 			SPINNER = createSpinner(` %s [${this.name}] Checking dependencies`, true);
 
@@ -158,7 +179,7 @@ export default class Package {
 						const pkg = getPackageJSON(join(this.path, 'node_modules', name));
 						return !satisfies(pkg.version, version);
 					} catch (err) {
-						this.verbose(`\x1b[31m(err) ${name}@${version}`, err);
+						// this.verboseError(`${name}@${version} (${this.path})`, err);
 						return true;
 					}
 				})
@@ -173,23 +194,11 @@ export default class Package {
 				SPINNER = createSpinner(` [${this.name}] Installing... %s`, true);
 
 				await exec(
-					`npm i ${deps.join(' ')}`,
+					`npm i --no-shrinkwrap --no-package-lock ${deps.join(' ')}`,
 					{cwd: this.path},
 				);
 
 				SPINNER.stop(true);
-			}
-		}
-
-		if (symLinks.length) {
-			for (const pkg of symLinks) {
-				const path = join(this.path, 'node_modules', pkg.name);
-
-				await checkNodeModulesPath(path);
-				await pkg.install(false);
-				await rmdir(path);
-				await symlink(pkg.getPathToPublished(), path);
-				await this.createBinScripts(pkg.json);
 			}
 		}
 
@@ -226,6 +235,11 @@ export default class Package {
 
 			resumeSpinner && SPINNER.start();
 		}
+	}
+
+	protected verboseError(...args) {
+		this.verbose(`\x1b[31m(error)`, ...args);
+		process.exit(1);
 	}
 
 	protected time(label) {
