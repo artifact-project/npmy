@@ -28,8 +28,10 @@ if (version) {
 console.log(`\x1b[32mNPMy\x1b[0m (ctrl+c -> exit)`);
 console.log(` - tmp: ${tmpdir()}`);
 
-// rmdirSync(tmpdir());
-mkdirSync(tmpdir());
+try {
+	// rmdirSync(tmpdir());
+	mkdirSync(tmpdir());
+} catch (_) {}
 
 add && console.log(` - add: ${add}`);
 include && console.log(` - include: ${include}`);
