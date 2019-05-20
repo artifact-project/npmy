@@ -9,7 +9,10 @@ const {
 	include,
 	add,
 	verbose,
-	version
+	version,
+	pkg,
+	to,
+	cwd = __dirname,
 } = minimist(process.argv.slice(2));
 
 process.on('unhandledRejection', (reason, p) => {
@@ -26,6 +29,7 @@ if (version) {
 }
 
 console.log(`\x1b[32mNPMy\x1b[0m (ctrl+c -> exit)`);
+console.log(` - cwd: ${cwd}`);
 console.log(` - tmp: ${tmpdir()}`);
 
 try {
@@ -38,7 +42,7 @@ include && console.log(` - include: ${include}`);
 
 if (verbose) {
 	console.log(` - verbose: enabled`);
-	process.env.VERBOSE = true;
+	process.env.VERBOSE = 'true';
 }
 
 console.log(`---------------------`);
@@ -78,6 +82,15 @@ console.log(`---------------------`);
 				// }, {}),
 			}, null, 2));
 		});
+	}
+
+	if (pkg) {
+		if (!to) {
+			console.warn(`\x1b[35m '--to' must be defined\x1b[0m`);
+		} else {
+			console.log(` - Create link: '${pkg}' -> '${to}'`);
+			manager.setLink(pkg, to, cwd);
+		}
 	}
 
 	for (const relativePath of targetPaths) {

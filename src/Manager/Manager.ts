@@ -62,6 +62,12 @@ export default class Manager {
 		console.log('--------------------------------------');
 	}
 
+	setLink(pkg: string, to: string, cwd: string = __dirname) {
+		const toPath = resolve(cwd, to);
+		this.observables[toPath] = true;
+		this.addItem(cwd, {[pkg]: toPath});
+	}
+
 	async scan(cwd: string, include?: string) {
 		const files = await glob('**/.npmyrc', {
 			cwd,
@@ -113,7 +119,7 @@ export default class Manager {
 
 						Object
 							.entries(rc)
-							.forEach(([name, path]) => {
+							.forEach(([name, path]:[string, string]) => {
 								rc[name] = resolve(filename, path);
 								this.observables[rc[name]] = true;
 							})

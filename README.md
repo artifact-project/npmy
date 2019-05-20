@@ -15,7 +15,6 @@ npm install -g npmy
  6. ...
  7. Profit!
 
-
 ### API
 
 `npmy [path] [--include=pattern]`
@@ -35,6 +34,13 @@ when dependent package has difficult publish cycle (modifies it's source, e.g. u
 or there are more then one.
 
 Trust me, `npmy` covers all above mentioned tasks.
+
+### Inline usage
+
+```sh
+# Before: `cd` to your project folder
+npmy --pkg=tx-i18n --to=~/artifact-project/tx-i18n
+```
 
 
 ### Development

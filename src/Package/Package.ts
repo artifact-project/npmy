@@ -238,7 +238,7 @@ export default class Package {
 	}
 
 	protected verboseError(...args) {
-		process.env.VERBOSE = true;
+		process.env.VERBOSE = 'true';
 		this.verbose(`\x1b[31m(error)`, ...args);
 		process.exit(1);
 	}
