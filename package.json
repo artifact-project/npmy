@@ -1,7 +1,7 @@
 {
   "name": "npmy",
-  "version": "0.7.1",
-  "description": "`npm link` on steroids.",
+  "version": "1.0.0-rc.1",
+  "description": "`npm/npx` on steroids.",
   "author": "RubaXa <ibnRubaXa@gmail.com>",
   "repository": "git@github.com:artifact-project/npmy.git",
   "license": "MIT",
@@ -11,6 +11,7 @@
   },
   "scripts": {
     "test": "jest --coverage",
+    "cli": "ts-node index.ts",
     "start": "ts-node index.ts",
     "ts-build": "tsc",
     "git-clean": "git clean -f",
@@ -29,8 +30,8 @@
     "@types/jest": "^19.2.3",
     "jest": "^20.0.3",
     "ts-jest": "^20.0.4",
-    "ts-node": "^3.3.0",
-    "typescript": "2.6.2"
+    "ts-node": "^9.1.1",
+    "typescript": "^2.1.5"
   },
   "jest": {
     "transform": {
@@ -48,13 +49,15 @@
   "dependencies": {
     "@types/minimatch": "^2.0.29",
     "@types/node": "^6.14.6",
+    "chalk": "^4.1.0",
     "cli-spinner": "^0.2.10",
     "debounce": "^1.2.0",
     "glob": "^7.1.4",
+    "latest-version": "^5.1.0",
     "minimatch": "^3.0.4",
     "minimist": "^1.2.0",
     "node-watch": "^0.5.9",
     "rimraf": "^2.6.3",
-    "semver": "^5.7.0"
+    "semver": "^7.3.4"
   }
 }

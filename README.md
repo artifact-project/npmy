@@ -1,23 +1,95 @@
-![NPMy](https://habrastorage.org/web/90b/1de/e11/90b1dee119184345bf280b43c8172568.png)
+![NPMy](https://habrastorage.org/webt/n4/k6/4j/n4k64jrjrkzeovjzqnnvtfeoto0.png)
 
-```
+- **npm**
+  - Install: `npmy + typescript` or dev `npmy +? typescript`
+  - Uninstall: `npmy - typescript`
+  - Outdated + Update: `npmy up`
+- **npm.scripts**
+  - `npmy :build`
+- **npx**
+  - `npmy @mail-core/cli init`
+
+---
+
+### Setup
+
+```sh
+# Install
 npm install -g npmy
+
+# Help
+npmy --help
 ```
 
-### Usage
+---
+
+### `npm`
+
+```sh
+# Install
+npmy + @mail-core/cli
+
+# Install as dev
+npmy +? mail-core/cli
+
+# Uninstall
+npmy - mail-core/cli
+```
+
+---
+
+### `npm scripts`
+
+```sh
+# `npm start`
+npmy :start
+
+# `npm run build`
+npmy :build
+```
+
+---
+
+### `npx`
+
+With support custom registry!!1
+
+```sh
+# Default regsitry
+npmy @mail-core/cli init
+
+# Customize
+npmy @mail-core/cli init --registry=https://my.npm.registry.dev
+```
+
+### `npm outdated`
+
+```sh
+# Soft update deps
+npmy up
+
+# Update to latest
+npmy up --latest
+```
+
+---
+
+### `npm link`
 
  0. `npm install -g npmy`
  1. `cd path/to/project`
  2. Add `.npmyrc` to `.gitignore`
  3. `touch .npmyrc`
  4. Edit `.npmyrc` as JSON-file and write `{"%TARGET_DEPENDENCY%": "%LOCAL_PATH_TO_PACKAGE_FOLDER%"}`
- 5. `npmy .`
+ 5. `npmy --link .`
  6. ...
  7. Profit!
 
+---
+
 ### API
 
-`npmy [path] [--include=pattern]`
+`npmy --link [path] [--include=pattern]`
 
  - `path` — by default current folder
  - `add` — add packages into `.npmyrc` (relative or absolute pattern)
@@ -25,21 +97,25 @@ npm install -g npmy
  - `version` — print current version
  - `verbose` — process detailing of installation and linking
 
+---
+
 ### Description of work / [Read article](https://github.com/artifact-project/npmy/wiki/%60npm-link%60-on-steroids) <sup><a href="https://habrahabr.ru/company/mailru/blog/333580/">Ru</a></sup>
 
-`npmy` — special tool for local packages development, subjecting to other packages being in development.
+`npmy --link` — special tool for local packages development, subjecting to other packages being in development.
 
 Usually I solve this task via npm link, or just symlink. These methods don't work,
 when dependent package has difficult publish cycle (modifies it's source, e.g. using Babel/Rollup/etc)
 or there are more then one.
 
-Trust me, `npmy` covers all above mentioned tasks.
+Trust me, `npmy --link` covers all above mentioned tasks.
+
+---
 
 ### Inline usage
 
 ```sh
 # Before: `cd` to your project folder
-npmy --pkg=tx-i18n --to=~/artifact-project/tx-i18n
+npmy --link --pkg=tx-i18n --to=~/artifact-project/tx-i18n
 ```
 
 
