@@ -49,7 +49,6 @@ switch (cmd) {
 		break;
 
 	case '+':
-	case '+?':
 	case '++':
 		values.splice(0, 1);
 		action = 'install';
@@ -57,7 +56,6 @@ switch (cmd) {
 		break;
 
 	case '-':
-	case '-?':
 	case '--':
 		values.splice(0, 1);
 		action = 'uninstall';

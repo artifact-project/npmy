@@ -1,7 +1,7 @@
 ![NPMy](https://habrastorage.org/webt/n4/k6/4j/n4k64jrjrkzeovjzqnnvtfeoto0.png)
 
 - **npm**
-  - Install: `npmy + typescript` or dev `npmy +? typescript`
+  - Install: `npmy + typescript` or dev `npmy ++ typescript`
   - Uninstall: `npmy - typescript`
   - Outdated + Update: `npmy up`
 - **npm.scripts**
@@ -30,7 +30,7 @@ npmy --help
 npmy + @mail-core/cli
 
 # Install as dev
-npmy +? mail-core/cli
+npmy ++ mail-core/cli
 
 # Uninstall
 npmy - mail-core/cli
