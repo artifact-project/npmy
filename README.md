@@ -70,6 +70,9 @@ npmy up
 
 # Update to latest
 npmy up --latest
+
+# Update by filter (starts with):
+npmy up @mail-core # ← up deps for "@mail-core/*"
 ```
 
 ---
