@@ -73,6 +73,10 @@ function verbose(...args: any[]) {
 }
 
 function exec(cmd: string, args: string[], options: SpawnOptions = {}) {
+	if (cmd === 'npm' && registryUrl) {
+		args.push(`--registry=${registryUrl}`);
+	}
+
 	verbose(cmd, args);
 
 	let _resolve = () => void 0;
@@ -137,6 +141,12 @@ async function detectPackage(value: string) {
 
 async function npx() {
 	const value = argv[0];
+
+	if (!value) {
+		console.error(bold.red('Package name not defined'));
+		process.exit(1);
+	}
+
 	const pkg = await detectPackage(value)
 
 	if (pkg === null) {

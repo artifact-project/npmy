@@ -1,5 +1,5 @@
 import {join, basename, relative} from 'path';
-import * as watch from 'node-watch';
+import watch from 'node-watch';
 import * as debounce from 'debounce';
 import * as minimatch from 'minimatch';
 import {exec, writeFile, glob, unlinkSync, rmdirSync, existsSync, readFile, pause, tmpdir, readDir, readDirSync} from '../utils/utils';
