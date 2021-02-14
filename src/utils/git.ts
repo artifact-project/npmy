@@ -46,7 +46,7 @@ export async function gitFetchStatus() {
 export async function gitStatus() {
 	const {stdout} = await execWithOutput('git', ['status', '--short']);
 	const entries = [] as Array<{type: string; file: string}>;
-	const parser = /\s+([^\s]+)\s+(.+)/g;
+	const parser = /\s*([^\s]+)\s+(.+)(\n?|$)/g;
 	let matches = null;
 	
 	while (matches = parser.exec(stdout)) {

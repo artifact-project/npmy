@@ -244,8 +244,6 @@ async function publish() {
 	filesToClean.forEach((entry) => {
 		removeFile(entry.file);
 	});
-
-	console.log(afterStatusFiles);
 }
 
 async function run(name: string, args: any[]) {
