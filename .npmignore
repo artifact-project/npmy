@@ -1,0 +1,86 @@
+# Created by @mail-core/platform
+
+# Ignore the .tsx? files
+**/*.ts
+**/*.tsx
+
+# Revert the .d.ts files
+!**/*.d.ts
+
+# NPM
+.npm
+node_modules
+npm-shrinkwrap.json
+
+# 2kit
+demo/
+docs/
+
+# Docker
+docker
+
+# Backstop
+backstop
+.backstop
+backstop.json
+
+# Build
+jam
+build
+*.tgz
+
+# CI + GIT
+.ci
+.git
+.gitignore
+.gitlab-ci.yml
+
+# AW cache
+.awcache
+
+# Lint
+.editorconfig
+.eslintrc
+.prettierrc.js
+tslint.*
+
+# IDE
+.idea
+.vscode
+
+# Deploy
+.deploy
+.deploy_local
+
+# Storybook
+.storybook
+*.stories.tsx
+*.stories.ts
+*.stories.js
+*.stories.js.map
+*.stories.d.ts
+
+# Test utils
+*.testUtils.tsx
+*.testUtils.ts
+*.testUtils.js
+*.testUtils.js.map
+
+# Jest & Tests
+jest.config.js
+jest
+coverage
+.jest
+.test
+.coverage
+__snapshots__
+*.test.tsx
+*.test.ts
+*.test.js
+*.test.js.map
+*.test.d.ts
+*.tests.tsx
+*.tests.ts
+*.tests.js
+*.tests.js.map
+*.tests.d.ts

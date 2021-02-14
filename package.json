@@ -16,14 +16,6 @@
     "ts-build": "tsc",
     "prepublishOnly": "npm run ts-build"
   },
-  "files": [
-    "*.js",
-    "*.d.ts",
-    "bin/*.js",
-    "bin/*.d.ts",
-    "src/*/*.js",
-    "src/*/*.d.ts"
-  ],
   "devDependencies": {
     "@types/jest": "^26.0.20",
     "jest": "^26.6.3",
