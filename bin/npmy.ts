@@ -1,3 +1,3 @@
 #! /usr/bin/env node
 
-import '../cmd/link/index';
+import '../index';
