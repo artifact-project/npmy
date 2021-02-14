@@ -32,10 +32,10 @@ npmy --help
 npmy + @mail-core/cli
 
 # Install as dev
-npmy ++ mail-core/cli
+npmy ++ @mail-core/cli
 
 # Uninstall
-npmy - mail-core/cli
+npmy - @mail-core/cli
 ```
 
 ---
