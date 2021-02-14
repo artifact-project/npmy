@@ -192,7 +192,7 @@ async function publish() {
 			ver.minor++;
 		} else if (upPatch) {
 			ver.patch++;
-		} else if (release) {
+		} else if (!release) {
 			console.error(bold.red('⚠️  Use --major, --minor or --patch'));
 			process.exit(1);
 		}
@@ -244,6 +244,8 @@ async function publish() {
 	filesToClean.forEach((entry) => {
 		removeFile(entry.file);
 	});
+
+	console.log(afterStatusFiles);
 }
 
 async function run(name: string, args: any[]) {
