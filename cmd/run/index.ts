@@ -1,28 +1,33 @@
 import { spawn, SpawnOptions } from 'child_process';
 import { resolve } from 'path';
 import { unlinkSync, existsSync, writeFileSync } from 'fs';
-import getLatestVersion from 'latest-version';
 import minimist = require('minimist');
-import {bold, magenta, red} from 'chalk';
-import { satisfies } from 'semver';
+import { bold, magenta, red } from 'chalk';
+import { satisfies, parse as parseVersion } from 'semver';
+import { getRegistryUrl, getLatestVersion } from '../../src/utils/npm';
+import { gitCurrentBranch, gitFetchStatus, gitStatus } from '../../src/utils/git';
 
 const cwd = process.cwd();
+const pkgFile = resolve(cwd, 'package.json');
+const pkg = require(pkgFile);
 const argv = process.argv.slice(2);
-const values = argv.filter((a) => !a.startsWith('-'));
+const values = argv.filter((a) => !a.startsWith('-') || /^-+$/.test(a));
+const registryUrl = getRegistryUrl();
 let {
 	add,
 	save,
 	saveDev,
 	remove,
-	registry, // 'https://registry.npmjs.org'
-	r,
-	reg,
-	dr, // Use default registry
 	verbose:verboseEnabled,
 	latest,
+	rc:rcTag,
+	draft:draftTag,
+	major:upMajor,
+	minor:upMinor,
+	patch:upPatch,
+	release,
 } = minimist(argv);
 let cmd = values[0];
-let registryUrl = reg || r || registry;
 let action = (
 	add || save || saveDev
 	? 'install'
@@ -35,12 +40,6 @@ let action = (
 
 verbose('argv:', argv);
 verbose('values:', values);
-verbose('action:', action);
-verbose('registry:', registryUrl);
-
-if (dr) {
-	registryUrl = 'https://registry.npmjs.org';
-}
 
 switch (cmd) {
 	case 'up':
@@ -62,12 +61,15 @@ switch (cmd) {
 		break;
 }
 
-if (registryUrl) {
-	process.env['npm_config_registry'] = registryUrl;
-}
+verbose('action:', action);
+verbose('registry:', registryUrl);
 
 function verbose(...args: any[]) {
 	verboseEnabled && console.info(...args.map(a => /bool|string|number/.test(typeof a) ? magenta(a) : a));
+}
+
+function savePkgJson() {
+	writeFileSync(pkgFile, JSON.stringify(pkg, null, 2));
 }
 
 function exec(cmd: string, args: string[], options: SpawnOptions = {}) {
@@ -95,15 +97,8 @@ function exec(cmd: string, args: string[], options: SpawnOptions = {}) {
 
 function removeFile(file: string) {
 	if (existsSync(file)) {
+		verbose('unlink', file);
 		unlinkSync(file);
-	}
-}
-
-async function getVersion(pkgName: string) {
-	try {
-		return await getLatestVersion(pkgName, <any>{registryUrl});
-	} catch {
-		return null;
 	}
 }
 
@@ -123,7 +118,7 @@ async function detectPackage(value: string) {
 	verbose('names:', names);
 
 	for (const name of names) {
-		let version = await getVersion(name);
+		let version = await getLatestVersion(name);
 		
 		if (version !== null) {
 			return {
@@ -156,7 +151,7 @@ async function npx() {
 	const args = [pkg.fullName].concat(argv.slice(1));
 
 	verbose('package:', pkg);
-	exec('npx', args);
+	await exec('npx', args).promise;
 }
 
 async function npm(list: string[]) {
@@ -167,18 +162,101 @@ async function npm(list: string[]) {
 		args.push(pkg.fullName);
 	}
 
-	exec('npm', args);
+	await exec('npm', args).promise;
+}
+
+async function publish() {
+	const ver = parseVersion(pkg.version);
+	const {branch, changes} = await gitFetchStatus();
+	const beforeStatusFiles = await gitStatus();
+	let skipChanges = false;
+	let npmTag = 'latest';
+	let gitTag = '';
+
+	console.log(bold('NPMy PUBLISH 🔥'));
+	console.log('→ branch:', bold.cyan(branch));
+
+	if (rcTag) {
+		npmTag = 'rc';
+		ver.prerelease = [branch, (+ver.prerelease[1] || 0) + 1]
+	} else if (draftTag) {
+		npmTag = 'draft';
+		skipChanges = true;
+		ver.prerelease = [branch, (+ver.prerelease[1] || 0) + 1]
+	} else {
+		// Release
+		if (upMajor) {
+			ver.major++;
+		} else if (upMinor) {
+			ver.minor++;
+		} else if (upPatch) {
+			ver.patch++;
+		} else if (release) {
+			console.error(bold.red('⚠️  Use --major, --minor or --patch'));
+			process.exit(1);
+		}
+
+		if (branch !== 'master') {
+			console.error(bold.red('You can publish a release only from the master'));
+			console.error(bold.red('Maybe, you want to publish RC, use: --rc'));
+			process.exit(1);
+		}
+
+		ver.build = [];
+		ver.prerelease = [];
+		gitTag = `v${ver.format()}`;
+	}
+
+	if (changes && !skipChanges) {
+		console.log(bold.red('🛑 Has uncommitted changes'));
+		process.exit(1);
+	}
+
+	console.log('→ npm.tag:', bold.cyan(npmTag));
+	console.log('→ version:', bold.cyan(ver.format()));
+
+	pkg.version = ver.format();
+	savePkgJson();
+
+	if (gitTag) {
+		const msg = `Release: ${gitTag} (via NPMy 🔥)`;
+
+		await exec('git', ['commit', '-a', '-m', `"${msg}"`]).promise;
+		await exec('git', ['push', 'origin', 'master']).promise;
+		await exec('git', ['tag', '-a', gitTag, '-m', `"${msg}"`]).promise;
+		await exec('git', ['push', 'origin', gitTag]).promise;
+	}
+
+	try {
+		await exec('npm', ['publish', '--tag', npmTag]).promise;
+	} catch {}
+
+	const afterStatusFiles = await gitStatus();
+	const filesToClean = afterStatusFiles.filter((entry) => {
+		if (entry.type !== '??') {
+			return false;
+		}
+
+		return !beforeStatusFiles.find(({file}) => file === entry.file);
+	});
+
+	filesToClean.forEach((entry) => {
+		removeFile(entry.file);
+	});
 }
 
 async function run(name: string, args: any[]) {
 	verbose('run:', args);
-	exec('npm', ['run', name].concat(args));
+	
+	if (name === 'publish') {
+		await publish();
+		return;
+	}
+
+	await exec('npm', ['run', name].concat(args)).promise;
 }
 
 async function upDeps(filter?: string) {
-	const pkgFile = resolve(cwd, 'package.json');
-	const pkg = require(pkgFile);
-
 	let out = '';
 	const child = exec('npm', ['outdated', '--json'], { stdio: undefined });
 	child.stdout.on('data', (chunk) => { out += chunk; })
@@ -235,11 +313,11 @@ async function upDeps(filter?: string) {
 		});
 
 		removeFile(resolve(cwd, 'package-lock.json'));
-		writeFileSync(pkgFile, JSON.stringify(pkg, null, 2));
+		savePkgJson();
 
 		console.log('');
 
-		await exec('npm', ['install']);
+		await exec('npm', ['install']).promise;
 	}
 
 	if (notUp.length) {

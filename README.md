@@ -4,6 +4,7 @@
   - Install: `npmy + typescript` or dev `npmy ++ typescript`
   - Uninstall: `npmy - typescript`
   - Outdated + Update: `npmy up`
+  - Publish: `npmy :publish --draft`, `npmy :publish --rc`, `npmy :publish --minor`
 - **npm.scripts**
   - `npmy :build`
 - **npx**
@@ -46,6 +47,27 @@ npmy :start
 
 # `npm run build`
 npmy :build
+```
+
+---
+
+### `npm publish`
+
+```sh
+# Release
+#  version: x.UP.x
+#  npm.tag: latest
+npmy :publish --minor
+
+# RC
+#  version: x.x.x-{branch}.UP
+#  npm.tag: rc
+npmy :publish --rc
+
+# Draft (prerelease)
+#  version: x.x.x-{branch}.UP
+#  npm.tag: draft
+npmy :publish --draft
 ```
 
 ---

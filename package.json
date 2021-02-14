@@ -1,6 +1,6 @@
 {
   "name": "npmy",
-  "version": "1.0.0-rc.3",
+  "version": "1.0.0-master.6",
   "description": "`npm/npx` on steroids.",
   "author": "RubaXa <ibnRubaXa@gmail.com>",
   "repository": "git@github.com:artifact-project/npmy.git",
@@ -14,9 +14,7 @@
     "cli": "ts-node index.ts",
     "start": "ts-node index.ts",
     "ts-build": "tsc",
-    "git-clean": "git clean -f",
-    "prepublishOnly": "npm run ts-build",
-    "postpublish": "npm run git-clean"
+    "prepublishOnly": "npm run ts-build"
   },
   "files": [
     "*.js",
@@ -54,6 +52,7 @@
     "debounce": "^1.2.0",
     "glob": "^7.1.4",
     "latest-version": "^5.1.0",
+    "mem": "^8.0.0",
     "minimatch": "^3.0.4",
     "minimist": "^1.2.0",
     "node-watch": "^0.7.1",

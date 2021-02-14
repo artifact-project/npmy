@@ -1,7 +1,7 @@
 import * as minimist from 'minimist';
-import getLatestVersion from 'latest-version';
-import {resolve} from 'path';
+import { resolve } from 'path';
 import { bold } from 'chalk';
+import { getLatestVersion } from './src/utils/npm';
 
 const {
 	link,
@@ -24,7 +24,7 @@ const pkg = require(resolve(__dirname, 'package.json'));
 
 getLatestVersion(pkg.name).then((version) => {
 	if (pkg.vsersion !== version) {
-		console.log(bold.yellow(`npm i -g ${pkg.name}@${version}`));
+		console.log('⚠️ ', bold.yellow(`npm i -g ${pkg.name}@${version}`));
 		console.log('');
 	}
 
