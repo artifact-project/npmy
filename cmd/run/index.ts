@@ -5,7 +5,7 @@ import minimist = require('minimist');
 import { bold, magenta, red } from 'chalk';
 import { satisfies, parse as parseVersion } from 'semver';
 import { getRegistryUrl, getLatestVersion } from '../../src/utils/npm';
-import { gitCurrentBranch, gitFetchStatus, gitStatus } from '../../src/utils/git';
+import { gitFetchStatus, gitStatus } from '../../src/utils/git';
 
 const cwd = process.cwd();
 const pkgFile = resolve(cwd, 'package.json');
@@ -14,6 +14,7 @@ const argv = process.argv.slice(2);
 const values = argv.filter((a) => !a.startsWith('-') || /^-+$/.test(a));
 const registryUrl = getRegistryUrl();
 let {
+	init:npmInit,
 	add,
 	save,
 	saveDev,
@@ -335,6 +336,11 @@ async function upDeps(filter?: string) {
 
 // Main
 (async function main() {
+	if (npmInit && values.length === 0) {
+		await exec('npm', ['init', '-y']).promise;
+		return;
+	}
+
 	if (action === 'npx') {
 		await npx();
 		return;
