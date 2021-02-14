@@ -1,6 +1,6 @@
 {
   "name": "npmy",
-  "version": "1.0.0-master.6",
+  "version": "1.0.0",
   "description": "`npm/npx` on steroids.",
   "author": "RubaXa <ibnRubaXa@gmail.com>",
   "repository": "git@github.com:artifact-project/npmy.git",
