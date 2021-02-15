@@ -138,8 +138,11 @@ async function publish() {
 		// Release
 		if (upMajor) {
 			ver.major++;
+			ver.minor = 0;
+			ver.patch = 0;
 		} else if (upMinor) {
 			ver.minor++;
+			ver.patch = 0;
 		} else if (upPatch) {
 			ver.patch++;
 		} else if (!release) {
