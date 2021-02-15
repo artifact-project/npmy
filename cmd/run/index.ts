@@ -1,15 +1,23 @@
-import { spawn, SpawnOptions } from 'child_process';
 import { resolve } from 'path';
 import { unlinkSync, existsSync, writeFileSync } from 'fs';
 import minimist = require('minimist');
-import { bold, magenta, red } from 'chalk';
+import { bold, red } from 'chalk';
 import { satisfies, parse as parseVersion } from 'semver';
-import { getRegistryUrl, getLatestVersion } from '../../src/utils/npm';
+import { getRegistryUrl, detectPackage } from '../../src/utils/npm';
 import { gitFetchStatus, gitStatus } from '../../src/utils/git';
+import { verbose } from '../../src/utils/verbose';
+import { execWithRegistry, exec } from '../../src/utils/exec';
 
 const cwd = process.cwd();
 const pkgFile = resolve(cwd, 'package.json');
-const pkg = require(pkgFile);
+const pkg = (() => {
+	try {
+		return require(pkgFile);
+	} catch {
+		verbose(pkgFile, ' not found')
+		return {name: '<<unknown>>', version: '0.0.0'};
+	}
+})();
 const argv = process.argv.slice(2);
 const values = argv.filter((a) => !a.startsWith('-') || /^-+$/.test(a));
 const registryUrl = getRegistryUrl();
@@ -19,7 +27,6 @@ let {
 	save,
 	saveDev,
 	remove,
-	verbose:verboseEnabled,
 	latest,
 	rc:rcTag,
 	draft:draftTag,
@@ -65,35 +72,8 @@ switch (cmd) {
 verbose('action:', action);
 verbose('registry:', registryUrl);
 
-function verbose(...args: any[]) {
-	verboseEnabled && console.info(...args.map(a => /bool|string|number/.test(typeof a) ? magenta(a) : a));
-}
-
 function savePkgJson() {
 	writeFileSync(pkgFile, JSON.stringify(pkg, null, 2));
-}
-
-function exec(cmd: string, args: string[], options: SpawnOptions = {}) {
-	if (cmd === 'npm' && registryUrl) {
-		args.push(`--registry=${registryUrl}`);
-	}
-
-	verbose(cmd, args);
-
-	let _resolve = () => void 0;
-	const promise = new Promise<void>((resolve) => {
-		_resolve = resolve;
-	});
-	const child = spawn(cmd, args, {
-		stdio: 'inherit',
-		cwd: process.cwd(),
-		env: process.env,
-		...options,
-	});
-
-	child.on('close', () => _resolve());
-
-	return Object.assign(child, {promise});
 }
 
 function removeFile(file: string) {
@@ -101,36 +81,6 @@ function removeFile(file: string) {
 		verbose('unlink', file);
 		unlinkSync(file);
 	}
-}
-
-async function detectPackage(value: string) {
-	const [firstPart, ...parts] = value.split(/[/-]/);
-	const names = value.includes('@') ? [value] : [value].concat(
-		parts
-			.map((_, i) => {
-				const scope = [firstPart].concat(parts.slice(0, i)).join('-');
-				const name = parts.slice(i).join('-');
-
-				return `@${scope}/${name}`;
-			})
-			.reverse()
-	);
-
-	verbose('names:', names);
-
-	for (const name of names) {
-		let version = await getLatestVersion(name);
-		
-		if (version !== null) {
-			return {
-				name,
-				version,
-				fullName: `${name}@${version}`,
-			};
-		}
-	}
-
-	return null;
 }
 
 async function npx() {
@@ -144,8 +94,8 @@ async function npx() {
 	const pkg = await detectPackage(value)
 
 	if (pkg === null) {
-		console.error(`Package '${value}' not found`);
-		console.error('Try add --reg=...');
+		console.error(bold.red(`Package '${value}' not found`));
+		console.error(red('Try add --reg=...'));
 		process.exit(1);
 	}
 
@@ -163,7 +113,7 @@ async function npm(list: string[]) {
 		args.push(pkg.fullName);
 	}
 
-	await exec('npm', args).promise;
+	await execWithRegistry('npm', args).promise;
 }
 
 async function publish() {
@@ -229,7 +179,7 @@ async function publish() {
 	}
 
 	try {
-		await exec('npm', ['publish', '--tag', npmTag]).promise;
+		await execWithRegistry('npm', ['publish', '--tag', npmTag]).promise;
 	} catch {}
 
 	const afterStatusFiles = await gitStatus();
@@ -254,12 +204,12 @@ async function run(name: string, args: any[]) {
 		return;
 	}
 
-	await exec('npm', ['run', name].concat(args)).promise;
+	await execWithRegistry('npm', ['run', name].concat(args)).promise;
 }
 
 async function upDeps(filter?: string) {
 	let out = '';
-	const child = exec('npm', ['outdated', '--json'], { stdio: undefined });
+	const child = execWithRegistry('npm', ['outdated', '--json'], { stdio: undefined });
 	child.stdout.on('data', (chunk) => { out += chunk; })
 
 	await child.promise;
@@ -318,7 +268,7 @@ async function upDeps(filter?: string) {
 
 		console.log('');
 
-		await exec('npm', ['install']).promise;
+		await execWithRegistry('npm', ['install']).promise;
 	}
 
 	if (notUp.length) {
@@ -337,7 +287,7 @@ async function upDeps(filter?: string) {
 // Main
 (async function main() {
 	if (npmInit && values.length === 0) {
-		await exec('npm', ['init', '-y']).promise;
+		await execWithRegistry('npm', ['init', '-y']).promise;
 		return;
 	}
 

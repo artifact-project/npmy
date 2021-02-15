@@ -2,6 +2,7 @@ import * as minimist from 'minimist';
 import { resolve } from 'path';
 import { bold, gray } from 'chalk';
 import { getLatestVersion } from './src/utils/npm';
+import { verbose } from './src/utils/verbose';
 
 const {
 	link,
@@ -21,6 +22,8 @@ if (!cmd) {
 }
 
 const pkg = require(resolve(__dirname, 'package.json'));
+
+verbose(pkg.name, pkg.version);
 
 getLatestVersion(pkg.name).then((version) => {
 	if (pkg.version !== version) {
