@@ -172,10 +172,15 @@ async function publish() {
 	if (gitTag) {
 		const msg = `Release: ${gitTag} (via NPMy 🔥)`;
 
+		console.log(bold('GIT COMMIT'));
 		await exec('git', ['commit', '-a', '-m', `"${msg}"`]).promise;
 		await exec('git', ['push', 'origin', 'master']).promise;
+		console.log('');
+
+		console.log(bold('GIT PUSH TAGS'));
 		await exec('git', ['tag', '-a', gitTag, '-m', `"${msg}"`]).promise;
 		await exec('git', ['push', 'origin', gitTag]).promise;
+		console.log('');
 	}
 
 	try {
